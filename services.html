@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Services - SocialTush</title>
+    <meta name="description" content="Comprehensive social media marketing services including management, content creation, and paid advertising. Get measurable ROI with our expert team.">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Core Libraries -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/typed.js/2.0.12/typed.min.js"></script>
+    
+    <style>
+        :root {
+            --sage-green: #7c9885;
+            --terracotta: #c4896b;
+            --charcoal: #1a1a1a;
+            --warm-white: #fafafa;
+            --soft-gray: #e8e8e8;
+            --muted-blue: #6b7c93;
+            --cream: #f5f3f0;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--warm-white) 0%, var(--cream) 100%);
+            color: var(--charcoal);
+            line-height: 1.6;
+        }
+        
+        .text-gradient {
+            background: linear-gradient(135deg, var(--sage-green), var(--terracotta));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--sage-green), var(--terracotta));
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px) rotateX(5deg);
+            box-shadow: 0 20px 40px rgba(124, 152, 133, 0.3);
+        }
+        
+        .card-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+        }
+        
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .nav-blur {
+            backdrop-filter: blur(10px);
+            background: rgba(250, 250, 250, 0.9);
+        }
+        
+        .service-tab {
+            transition: all 0.3s ease;
+            border-bottom: 2px solid transparent;
+        }
+        
+        .service-tab.active {
+            border-bottom-color: var(--sage-green);
+            color: var(--sage-green);
+        }
+        
+        .roi-calculator {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(124, 152, 133, 0.2);
+        }
+        
+        .slider-container {
+            position: relative;
+            margin: 20px 0;
+        }
+        
+        .slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: linear-gradient(to right, var(--sage-green), var(--terracotta));
+            outline: none;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+        
+        .slider:hover {
+            opacity: 1;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--sage-green);
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .slider::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--sage-green);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background: #e8e8e8;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--sage-green), var(--terracotta));
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        
+        .timeline-item {
+            position: relative;
+            padding-left: 40px;
+        }
+        
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 8px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--sage-green);
+        }
+        
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            left: 7px;
+            top: 24px;
+            width: 2px;
+            height: calc(100% - 16px);
+            background: var(--soft-gray);
+        }
+        
+        .timeline-item:last-child::after {
+            display: none;
+        }
+        
+        /* Service Icons */
+        .service-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            position: relative;
+            overflow: hidden;
+            margin: 0 auto 1.5rem;
+        }
+        
+        .service-icon::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, var(--sage-green), var(--terracotta));
+            z-index: -1;
+        }
+        
+        .service-icon::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            right: -50%;
+            bottom: -50%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.2), transparent);
+            transform: rotate(45deg);
+            animation: shine 4s ease-in-out infinite;
+            z-index: -1;
+        }
+        
+        @keyframes shine {
+            0%, 100% { transform: rotate(45deg) translateX(-100%); }
+            50% { transform: rotate(45deg) translateX(100%); }
+        }
+        
+        /* Platform Icons */
+        .platform-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            font-weight: bold;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .platform-icon::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, var(--sage-green), var(--terracotta));
+            z-index: -1;
+        }
+        
+        /* Animated Background */
+        .geometric-bg {
+            background-image: 
+                radial-gradient(circle at 25% 25%, rgba(124, 152, 133, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(196, 137, 107, 0.1) 0%, transparent 50%),
+                linear-gradient(45deg, transparent 49%, rgba(124, 152, 133, 0.05) 50%, transparent 51%);
+            background-size: 100px 100px, 150px 150px, 20px 20px;
+            animation: patternMove 20s linear infinite;
+        }
+        
+        @keyframes patternMove {
+            0% { background-position: 0 0, 0 0, 0 0; }
+            100% { background-position: 100px 100px, -150px -150px, 20px 20px; }
+        }
+        
+        /* Content Type Cards */
+        .content-type-card {
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .content-type-card:hover {
+            border-color: var(--sage-green);
+            transform: translateY(-4px);
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .service-icon {
+                width: 48px;
+                height: 48px;
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 nav-blur border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="index.html" class="text-2xl font-bold text-gradient">SocialTush</a>
+                </div>
+                
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="index.html" class="text-gray-700 hover:text-sage-green transition-colors duration-200">Home</a>
+                    <a href="services.html" class="text-sage-green font-medium">Services</a>
+                    <a href="tools.html" class="text-gray-700 hover:text-sage-green transition-colors duration-200">Tools</a>
+                    <a href="contact.html" class="text-gray-700 hover:text-sage-green transition-colors duration-200">Contact</a>
+                </div>
+                
+                <div class="flex items-center">
+                    <a href="contact.html" class="btn-primary text-white px-6 py-2 rounded-full font-medium">
+                        Get Free Audit
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Services Hero -->
+    <section class="pt-24 pb-16 bg-gradient-to-br from-gray-50 to-white geometric-bg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <nav class="text-sm text-gray-500 mb-4">
+                    <a href="index.html" class="hover:text-sage-green">Home</a>
+                    <span class="mx-2">/</span>
+                    <span class="text-sage-green">Services</span>
+                </nav>
+                <h1 class="text-4xl md:text-6xl font-bold mb-6 text-gradient">
+                    Our Services
+                </h1>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    Comprehensive social media marketing solutions designed to drive real business results. 
+                    From strategy to execution, we handle everything.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Service Categories -->
+    <section class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Service Tabs -->
+            <div class="flex flex-wrap justify-center mb-12">
+                <button class="service-tab px-6 py-3 font-medium text-gray-600 hover:text-sage-green active" data-service="management">
+                    Social Media Management
+                </button>
+                <button class="service-tab px-6 py-3 font-medium text-gray-600 hover:text-sage-green" data-service="content">
+                    Content Creation
+                </button>
+                <button class="service-tab px-6 py-3 font-medium text-gray-600 hover:text-sage-green" data-service="advertising">
+                    Paid Advertising
+                </button>
+                <button class="service-tab px-6 py-3 font-medium text-gray-600 hover:text-sage-green" data-service="strategy">
+                    Strategy & Consulting
+                </button>
+            </div>
+
+            <!-- Service Content -->
+            <div id="service-content" class="max-w-4xl mx-auto">
+                <!-- Social Media Management -->
+                <div class="service-panel active" data-service="management">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                        <div>
+                            <h2 class="text-3xl font-bold mb-6">Complete Social Media Management</h2>
+                            <p class="text-gray-600 mb-6 text-lg">
+                                We take complete ownership of your social media presence, from content creation to community management, 
+                                ensuring consistent growth and engagement across all platforms.
+                            </p>
+                            <ul class="space-y-4 mb-8">
+                                <li class="flex items-start">
+                                    <svg class="w-6 h-6 text-sage-green mr-3 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                    <span>Multi-platform content scheduling and publishing</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <svg class="w-6 h-6 text-sage-green mr-3 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                    <span>24/7 community management and engagement</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <svg class="w-6 h-6 text-sage-green mr-3 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                    <span>Performance tracking and monthly reporting</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <svg class="w-6 h-6 text-sage-green mr-3 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                    <span>Crisis management and brand protection</span>
+                                </li>
+                            </ul>
+                            <div class="bg-gray-50 p-6 rounded-2xl">
+                                <div class="text-3xl font-bold text-gradient mb-2">From $1,200/month</div>
+                                <p class="text-gray-600 mb-4">Perfect for businesses ready to scale their social presence</p>
+                                <a href="contact.html" class="btn-primary text-white px-6 py-3 rounded-full font-semibold inline-block">
+                                    Get Started
+                                </a>
+                            </div>
+                        </div>
+                        <div class="bg-gradient-to-br from-gray-50 to-white p-8 rounded-2xl">
+                            <h3 class="text-xl font-semibold mb-6">What's Included:</h3>
+                            <div class="space-y-4">
+                                <div class="flex justify-between items-center py-3 border-b border-gray-200">
+                                    <span class="text-gray-600">Platforms Managed</span>
+                                    <span class="font-semibold">3-5 Platforms</span>
+                                </div>
+                                <div class="flex justify-between items-center py-3 border-b border-gray-200">
+                                    <span class="text-gray-600">Posts Per Week</span>
+                                    <span class="font-semibold">15-25 Posts</span>
+                                </div>
+                                <div class="flex justify-between items-center py-3 border-b border-gray-200">
+                                    <span class="text-gray-600">Response Time</span>
+                                    <span class="font-semibold">< 2 Hours</span>
+                                </div>
+                                <div class="flex justify-between items-center py-3 border-b border-gray-200">
+                                    <span class="text-gray-600">Monthly Reports</span>
+                                    <span class="font-semibold">Detailed Analytics</span>
+                                </div>
+                                <div class="flex justify-between items-center py-3">
+                                    <span class="text-gray-600">Dedicated Manager</span>
+                                    <span class="font-semibold">Yes</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Content Creation -->
+                <div class="service-panel hidden" data-service="content">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                        <div>
+                            <h2 class="text-3xl font-bold mb-6">Strategic Content Creation</h2>
+                            <p class="text-gray-600 mb-6 text-lg">
+                                Compelling content that tells your brand story and drives engagement. 
+                                From video production to graphic design, we create content that resonates with your audience.
+                            </p>
+                            <ul class="space-y-4 mb-8">
+                                <li class="flex items-start">
+                                    <svg class="w-6 h-6 text-sage-green mr-3 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                    <span>Custom video production and editing</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <svg class="w-6 h-6 text-sage-green mr-3 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                    <span>Professional graphic design and branding</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <svg class="w-6 h-6 text-sage-green mr-3 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                    <span>Copywriting and caption optimization</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <svg class="w-6 h-6 text-sage-green mr-3 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                    <span>Content calendar planning and strategy</span>
+                                </li>
+                            </ul>
+                            <div class="bg-gray-50 p-6 rounded-2xl">
+                                <div class="text-3xl font-bold text-gradient mb-2">From $800/month</div>
+                                <p class="text-gray-600 mb-4">High-quality content that drives engagement</p>
+                                <a href="contact.html" class="btn-primary text-white px-6 py-3 rounded-full font-semibold inline-block">
+                                    Get Started
+                                </a>
+                            </div>
+                        </div>
+                        <div class="bg-gradient-to-br from-gray-50 to-white p-8 rounded-2xl">
+                            <h3 class="text-xl font-semibold mb-6">Content Types:</h3>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="content-type-card text-center p-4 bg-white rounded-xl">
+                                    <div class="text-3xl mb-2">🎥</div>
+                                    <div class="font-semibold">Video Content</div>
+                                </div>
+                                <div class="content-type-card text-center p-4 bg-white rounded-xl">
+                                    <div class="text-3xl mb-2">🎨</div>
+                                    <div class="font-semibold">Graphics</div>
+                                </div>
+                                <div class="content-type-card text-center p-4 bg-white rounded-xl">
+                                    <div class="text-3xl mb-2">📝</div>
+                                    <div class="font-semibold">Copywriting</div>
+                                </div>
+                                <div class="content-type-card text-center p-4 bg-white rounded-xl">
+                                    <div class="text-3xl mb-2">📊</div>
+                                    <div class="font-semibold">Infographics</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Paid Advertising -->
+                <div class="service-panel hidden" data-service="advertising">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                        <div>
+                            <h2 class="text-3xl font-bold mb-6">Paid Advertising & ROI Optimization</h2>
+                            <p class="text-gray-600 mb-6 text-lg">
+                                Strategic ad campaigns that deliver measurable results. We optimize every dollar spent 
+                                to maximize your return on investment across all major social platforms.
+                            </p>
+                            <ul class="space-y-4 mb-8">
+                                <li class="flex items-start">
+                                    <svg class="w-6 h-6 text-sage-green mr-3 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                    <span>Advanced audience targeting and segmentation</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <svg class="w-6 h-6 text-sage-green mr-3 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                    <span>A/B testing and conversion optimization</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <svg class="w-6 h-6 text-sage-green mr-3 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                    <span>Real-time performance monitoring</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <svg class="w-6 h-6 text-sage-green mr-3 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                    <span>Detailed ROI tracking and reporting</span>
+                                </li>
+                            </ul>
+                            <div class="bg-gray-50 p-6 rounded-2xl">
+                                <div class="text-3xl font-bold text-gradient mb-2">From $1,500/month</div>
+                                <p class="text-gray-600 mb-4">Plus 15% of ad spend</p>
+                                <a href="contact.html" class="btn-primary text-white px-6 py-3 rounded-full font-semibold inline-block">
+                                    Get Started
+                                </a>
+                            </div>
+                        </div>
+                        <div class="bg-gradient-to-br from-gray-50 to-white p-8 rounded-2xl">
+                            <h3 class="text-xl font-semibold mb-6">Platform Expertise:</h3>
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between p-3 bg-white rounded-lg">
+                                    <div class="flex items-center">
+                                        <div class="platform-icon mr-3">📘</div>
+                                        <span class="font-medium">Facebook & Instagram</span>
+                                    </div>
+                                    <span class="text-sage-green font-semibold">Expert</span>
+                                </div>
+                                <div class="flex items-center justify-between p-3 bg-white rounded-lg">
+                                    <div class="flex items-center">
+                                        <div class="platform-icon mr-3">💼</div>
+                                        <span class="font-medium">LinkedIn</span>
+                                    </div>
+                                    <span class="text-sage-green font-semibold">Expert</span>
+                                </div>
+                                <div class="flex items-center justify-between p-3 bg-white rounded-lg">
+                                    <div class="flex items-center">
+                                        <div class="platform-icon mr-3">🎵</div>
+                                        <span class="font-medium">TikTok</span>
+                                    </div>
+                                    <span class="text-sage-green font-semibold">Advanced</span>
+                                </div>
+                                <div class="flex items-center justify-between p-3 bg-white rounded-lg">
+                                    <div class="flex items-center">
+                                        <div class="platform-icon mr-3">📺</div>
+                                        <span class="font-medium">YouTube</span>
+                                    </div>
+                                    <span class="text-sage-green font-semibold">Advanced</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Strategy & Consulting -->
+                <div class="service-panel hidden" data-service="strategy">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                        <div>
+                            <h2 class="text-3xl font-bold mb-6">Strategy & Consulting</h2>
+                            <p class="text-gray-600 mb-6 text-lg">
+                                Strategic guidance and expert consultation to align your social media efforts with business objectives. 
+                                Perfect for teams that need direction and expertise.
+                            </p>
+                            <ul class="space-y-4 mb-8">
+                                <li class="flex items-start">
+                                    <svg class="w-6 h-6 text-sage-green mr-3 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                    <span>Comprehensive social media audit</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <svg class="w-6 h-6 text-sage-green mr-3 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                    <span>Custom strategy development</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <svg class="w-6 h-6 text-sage-green mr-3 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                    <span>Team training and workshops</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <svg class="w-6 h-6 text-sage-green mr-3 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                    <span>Ongoing strategy optimization</span>
+                                </li>
+                            </ul>
+                            <div class="bg-gray-50 p-6 rounded-2xl">
+                                <div class="text-3xl font-bold text-gradient mb-2">From $2,000</div>
+                                <p class="text-gray-600 mb-4">One-time strategy project</p>
+                                <a href="contact.html" class="btn-primary text-white px-6 py-3 rounded-full font-semibold inline-block">
+                                    Get Started
+                                </a>
+                            </div>
+                        </div>
+                        <div class="bg-gradient-to-br from-gray-50 to-white p-8 rounded-2xl">
+                            <h3 class="text-xl font-semibold mb-6">Strategy Process:</h3>
+                            <div class="space-y-6">
+                                <div class="timeline-item">
+                                    <h4 class="font-semibold mb-2">Discovery & Audit</h4>
+                                    <p class="text-gray-600 text-sm">Comprehensive analysis of current performance and competitive landscape</p>
+                                </div>
+                                <div class="timeline-item">
+                                    <h4 class="font-semibold mb-2">Strategy Development</h4>
+                                    <p class="text-gray-600 text-sm">Custom strategy aligned with business goals and target audience</p>
+                                </div>
+                                <div class="timeline-item">
+                                    <h4 class="font-semibold mb-2">Implementation Plan</h4>
+                                    <p class="text-gray-600 text-sm">Detailed roadmap with timelines, resources, and success metrics</p>
+                                </div>
+                                <div class="timeline-item">
+                                    <h4 class="font-semibold mb-2">Training & Handoff</h4>
+                                    <p class="text-gray-600 text-sm">Team training and knowledge transfer for successful execution</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ROI Calculator -->
+    <section class="py-20 bg-gradient-to-br from-gray-50 to-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold mb-6 text-gradient">
+                    Calculate Your Potential ROI
+                </h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    See how much revenue you could generate with our social media marketing services. 
+                    Adjust the sliders to match your business goals.
+                </p>
+            </div>
+            
+            <div class="max-w-4xl mx-auto">
+                <div class="roi-calculator p-8 rounded-3xl">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                        <!-- Input Controls -->
+                        <div>
+                            <h3 class="text-2xl font-bold mb-8">Your Investment</h3>
+                            
+                            <div class="space-y-8">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        Monthly Ad Spend: $<span id="ad-spend-value">5000</span>
+                                    </label>
+                                    <div class="slider-container">
+                                        <input type="range" min="1000" max="50000" value="5000" class="slider" id="ad-spend">
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        Target Audience Size: <span id="audience-size-value">50000</span>
+                                    </label>
+                                    <div class="slider-container">
+                                        <input type="range" min="10000" max="1000000" value="50000" class="slider" id="audience-size">
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        Industry Type
+                                    </label>
+                                    <select id="industry" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sage-green focus:border-transparent">
+                                        <option value="ecommerce">E-commerce</option>
+                                        <option value="saas">SaaS/Technology</option>
+                                        <option value="healthcare">Healthcare</option>
+                                        <option value="finance">Finance</option>
+                                        <option value="education">Education</option>
+                                        <option value="entertainment">Entertainment</option>
+                                        <option value="food">Food & Beverage</option>
+                                        <option value="fitness">Fitness & Wellness</option>
+                                    </select>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        Campaign Duration: <span id="campaign-duration-value">3</span> months
+                                    </label>
+                                    <div class="slider-container">
+                                        <input type="range" min="1" max="12" value="3" class="slider" id="campaign-duration">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Results -->
+                        <div>
+                            <h3 class="text-2xl font-bold mb-8">Projected Results</h3>
+                            
+                            <div class="space-y-6">
+                                <div class="bg-white p-6 rounded-2xl border border-gray-200">
+                                    <div class="flex justify-between items-center mb-4">
+                                        <span class="text-gray-600">Expected Reach</span>
+                                        <span class="text-2xl font-bold text-gradient" id="expected-reach">125,000</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 75%" id="reach-progress"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-white p-6 rounded-2xl border border-gray-200">
+                                    <div class="flex justify-between items-center mb-4">
+                                        <span class="text-gray-600">Estimated Conversions</span>
+                                        <span class="text-2xl font-bold text-gradient" id="expected-conversions">1,250</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 60%" id="conversion-progress"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-white p-6 rounded-2xl border border-gray-200">
+                                    <div class="flex justify-between items-center mb-4">
+                                        <span class="text-gray-600">Projected Revenue</span>
+                                        <span class="text-2xl font-bold text-gradient" id="expected-revenue">$87,500</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 85%" id="revenue-progress"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-gradient-to-br from-sage-green to-terracotta text-white p-6 rounded-2xl">
+                                    <div class="flex justify-between items-center mb-4">
+                                        <span class="text-lg">Expected ROI</span>
+                                        <span class="text-3xl font-bold" id="expected-roi">4.2x</span>
+                                    </div>
+                                    <p class="text-sm opacity-90">Return on every dollar invested</p>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-8">
+                                <a href="contact.html" class="btn-primary text-white px-8 py-4 rounded-full font-semibold text-lg inline-block w-full text-center">
+                                    Get Detailed Report
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Process Timeline -->
+    <section class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold mb-6">
+                    Our Proven Process
+                </h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    We've refined our process over 8 years to deliver consistent, measurable results. 
+                    Here's how we work with you to achieve your goals.
+                </p>
+            </div>
+            
+            <div class="max-w-4xl mx-auto">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="timeline-item">
+                        <h3 class="text-xl font-semibold mb-2">Discovery & Strategy</h3>
+                        <p class="text-gray-600 mb-4">
+                            We start with a deep dive into your business, goals, and target audience. 
+                            This forms the foundation of everything we do.
+                        </p>
+                        <div class="text-sm text-sage-green font-medium">Week 1-2</div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <h3 class="text-xl font-semibold mb-2">Content Planning</h3>
+                        <p class="text-gray-600 mb-4">
+                            Based on our strategy, we create a comprehensive content calendar 
+                            tailored to each platform and audience segment.
+                        </p>
+                        <div class="text-sm text-sage-green font-medium">Week 3-4</div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <h3 class="text-xl font-semibold mb-2">Launch & Optimize</h3>
+                        <p class="text-gray-600 mb-4">
+                            We launch your campaigns and continuously optimize based on performance data, 
+                            ensuring maximum ROI from day one.
+                        </p>
+                        <div class="text-sm text-sage-green font-medium">Week 5+</div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <h3 class="text-xl font-semibold mb-2">Scale & Grow</h3>
+                        <p class="text-gray-600 mb-4">
+                            As we identify what works best, we scale successful campaigns 
+                            and explore new opportunities for growth.
+                        </p>
+                        <div class="text-sm text-sage-green font-medium">Ongoing</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-20 bg-gradient-to-br from-sage-green to-terracotta text-white">
+        <div class="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
+            <h2 class="text-4xl md:text-5xl font-bold mb-6">
+                Ready to Get Started?
+            </h2>
+            <p class="text-xl mb-8 opacity-90">
+                Schedule a free consultation to discuss your social media goals and see how we can help you achieve them.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="contact.html" class="bg-white text-sage-green px-8 py-4 rounded-full font-semibold text-lg hover:bg-gray-100 transition-all duration-300 inline-block">
+                    Schedule Free Consultation
+                </a>
+                <a href="tools.html" class="border-2 border-white text-white px-8 py-4 rounded-full font-semibold text-lg hover:bg-white hover:text-sage-green transition-all duration-300 inline-block">
+                    Try Our Free Tools
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-charcoal text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div class="col-span-1 md:col-span-2">
+                    <div class="text-3xl font-bold text-gradient mb-4">SocialTush</div>
+                    <p class="text-gray-400 mb-6 max-w-md">
+                        Transforming social media from a cost center into a revenue engine. 
+                        Data-driven strategies that deliver measurable ROI for growing businesses.
+                    </p>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Quick Links</h3>
+                    <ul class="space-y-2">
+                        <li><a href="services.html" class="text-gray-400 hover:text-white transition-colors">Services</a></li>
+                        <li><a href="tools.html" class="text-gray-400 hover:text-white transition-colors">Free Tools</a></li>
+                        <li><a href="contact.html" class="text-gray-400 hover:text-white transition-colors">Contact</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Contact Info</h3>
+                    <ul class="space-y-2 text-gray-400">
+                        <li>Nairobi, Kenya</li>
+                        <li>+254-727424569</li>
+                        <li>support@socialtush.com</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2025 SocialTush. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Service Tab Functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const serviceTabs = document.querySelectorAll('.service-tab');
+            const servicePanels = document.querySelectorAll('.service-panel');
+
+            serviceTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Remove active class from all tabs and panels
+                    serviceTabs.forEach(t => t.classList.remove('active'));
+                    servicePanels.forEach(p => {
+                        p.classList.remove('active');
+                        p.classList.add('hidden');
+                    });
+
+                    // Add active class to clicked tab
+                    tab.classList.add('active');
+
+                    // Show corresponding panel
+                    const service = tab.dataset.service;
+                    const panel = document.querySelector(`[data-service="${service}"].service-panel`);
+                    if (panel) {
+                        panel.classList.add('active');
+                        panel.classList.remove('hidden');
+                    }
+                });
+            });
+
+            // ROI Calculator Functionality
+            initROICalculator();
+        });
+
+        // ROI Calculator
+        function initROICalculator() {
+            const adSpendSlider = document.getElementById('ad-spend');
+            const audienceSizeSlider = document.getElementById('audience-size');
+            const campaignDurationSlider = document.getElementById('campaign-duration');
+            const industrySelect = document.getElementById('industry');
+
+            const adSpendValue = document.getElementById('ad-spend-value');
+            const audienceSizeValue = document.getElementById('audience-size-value');
+            const campaignDurationValue = document.getElementById('campaign-duration-value');
+
+            // Update values and calculate ROI when inputs change
+            function updateCalculator() {
+                const adSpend = parseInt(adSpendSlider.value);
+                const audienceSize = parseInt(audienceSizeSlider.value);
+                const campaignDuration = parseInt(campaignDurationSlider.value);
+                const industry = industrySelect.value;
+
+                // Update display values
+                adSpendValue.textContent = adSpend.toLocaleString();
+                audienceSizeValue.textContent = audienceSize.toLocaleString();
+                campaignDurationValue.textContent = campaignDuration;
+
+                // Calculate projections based on industry benchmarks
+                const industryMultipliers = {
+                    'ecommerce': { reach: 2.5, conversion: 0.02, avgOrder: 75 },
+                    'saas': { reach: 1.8, conversion: 0.015, avgOrder: 150 },
+                    'healthcare': { reach: 2.0, conversion: 0.012, avgOrder: 200 },
+                    'finance': { reach: 1.5, conversion: 0.008, avgOrder: 500 },
+                    'education': { reach: 2.2, conversion: 0.025, avgOrder: 50 },
+                    'entertainment': { reach: 3.0, conversion: 0.018, avgOrder: 30 },
+                    'food': { reach: 2.8, conversion: 0.022, avgOrder: 45 },
+                    'fitness': { reach: 2.3, conversion: 0.02, avgOrder: 80 }
+                };
+
+                const multipliers = industryMultipliers[industry] || industryMultipliers['ecommerce'];
+                
+                const expectedReach = Math.floor(audienceSize * multipliers.reach * (campaignDuration / 3));
+                const expectedConversions = Math.floor(expectedReach * multipliers.conversion);
+                const expectedRevenue = expectedConversions * multipliers.avgOrder;
+                const expectedROI = ((expectedRevenue - (adSpend * campaignDuration)) / (adSpend * campaignDuration) * 100 / 25).toFixed(1);
+
+                // Update results with animation
+                animateValue('expected-reach', expectedReach);
+                animateValue('expected-conversions', expectedConversions);
+                animateValue('expected-revenue', expectedRevenue, true);
+                animateValue('expected-roi', parseFloat(expectedROI), false, 'x');
+
+                // Update progress bars
+                updateProgressBar('reach-progress', 75);
+                updateProgressBar('conversion-progress', 60);
+                updateProgressBar('revenue-progress', 85);
+            }
+
+            // Add event listeners
+            adSpendSlider.addEventListener('input', updateCalculator);
+            audienceSizeSlider.addEventListener('input', updateCalculator);
+            campaignDurationSlider.addEventListener('input', updateCalculator);
+            industrySelect.addEventListener('change', updateCalculator);
+
+            // Initial calculation
+            updateCalculator();
+        }
+
+        function animateValue(elementId, targetValue, isCurrency = false, suffix = '') {
+            const element = document.getElementById(elementId);
+            const startValue = 0;
+            const duration = 1000;
+            const startTime = performance.now();
+
+            function updateValue(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const easeOut = 1 - Math.pow(1 - progress, 3);
+                const currentValue = startValue + (targetValue - startValue) * easeOut;
+
+                if (isCurrency) {
+                    element.textContent = '$' + Math.floor(currentValue).toLocaleString();
+                } else {
+                    element.textContent = Math.floor(currentValue).toLocaleString() + suffix;
+                }
+
+                if (progress < 1) {
+                    requestAnimationFrame(updateValue);
+                }
+            }
+
+            requestAnimationFrame(updateValue);
+        }
+
+        function updateProgressBar(elementId, percentage) {
+            const element = document.getElementById(elementId);
+            element.style.width = percentage + '%';
+        }
+    </script>
+    <script src="main.js"></script>
+</body>
+</html>

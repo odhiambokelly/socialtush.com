@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Free Tools - SocialTush</title>
+    <meta name="description" content="Free social media marketing tools including content calendar generator, social media audit tool, and more. Get started with no registration required.">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Core Libraries -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    
+    <style>
+        :root {
+            --sage-green: #7c9885;
+            --terracotta: #c4896b;
+            --charcoal: #1a1a1a;
+            --warm-white: #fafafa;
+            --soft-gray: #e8e8e8;
+            --muted-blue: #6b7c93;
+            --cream: #f5f3f0;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--warm-white) 0%, var(--cream) 100%);
+            color: var(--charcoal);
+            line-height: 1.6;
+        }
+        
+        .text-gradient {
+            background: linear-gradient(135deg, var(--sage-green), var(--terracotta));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--sage-green), var(--terracotta));
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px) rotateX(5deg);
+            box-shadow: 0 20px 40px rgba(124, 152, 133, 0.3);
+        }
+        
+        .card-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+        }
+        
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .nav-blur {
+            backdrop-filter: blur(10px);
+            background: rgba(250, 250, 250, 0.9);
+        }
+        
+        .tool-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(124, 152, 133, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .tool-card:hover {
+            border-color: var(--sage-green);
+            box-shadow: 0 10px 30px rgba(124, 152, 133, 0.2);
+        }
+        
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1px;
+            background: var(--soft-gray);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .calendar-day {
+            background: white;
+            min-height: 120px;
+            padding: 8px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .calendar-day:hover {
+            background: var(--cream);
+        }
+        
+        .calendar-day.other-month {
+            background: #f9f9f9;
+            color: #ccc;
+        }
+        
+        .calendar-day.today {
+            background: linear-gradient(135deg, var(--sage-green), var(--terracotta));
+            color: white;
+        }
+        
+        .content-item {
+            background: var(--sage-green);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            margin-bottom: 4px;
+            cursor: pointer;
+        }
+        
+        .content-item.video {
+            background: var(--terracotta);
+        }
+        
+        .content-item.image {
+            background: var(--muted-blue);
+        }
+        
+        .content-item.text {
+            background: var(--sage-green);
+        }
+        
+        .audit-score {
+            background: conic-gradient(var(--sage-green) 0deg, var(--terracotta) 180deg, var(--soft-gray) 360deg);
+            border-radius: 50%;
+            padding: 8px;
+        }
+        
+        .audit-score-inner {
+            background: white;
+            border-radius: 50%;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+        
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .drag-over {
+            border: 2px dashed var(--sage-green);
+            background: rgba(124, 152, 133, 0.1);
+        }
+        
+        .password-strength {
+            height: 8px;
+            border-radius: 4px;
+            background: #e8e8e8;
+            overflow: hidden;
+        }
+        
+        .password-strength-weak {
+            background: #ef4444;
+            width: 33%;
+        }
+        
+        .password-strength-medium {
+            background: #f59e0b;
+            width: 66%;
+        }
+        
+        .password-strength-strong {
+            background: var(--sage-green);
+            width: 100%;
+        }
+        
+        /* Tool Icons */
+        .tool-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            position: relative;
+            overflow: hidden;
+            margin: 0 auto 1.5rem;
+        }
+        
+        .tool-icon::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, var(--sage-green), var(--terracotta));
+            z-index: -1;
+        }
+        
+        .tool-icon::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            right: -50%;
+            bottom: -50%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.2), transparent);
+            transform: rotate(45deg);
+            animation: shine 4s ease-in-out infinite;
+            z-index: -1;
+        }
+        
+        @keyframes shine {
+            0%, 100% { transform: rotate(45deg) translateX(-100%); }
+            50% { transform: rotate(45deg) translateX(100%); }
+        }
+        
+        /* Geometric Background */
+        .geometric-bg {
+            background-image: 
+                radial-gradient(circle at 25% 25%, rgba(124, 152, 133, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(196, 137, 107, 0.1) 0%, transparent 50%),
+                linear-gradient(45deg, transparent 49%, rgba(124, 152, 133, 0.05) 50%, transparent 51%);
+            background-size: 100px 100px, 150px 150px, 20px 20px;
+            animation: patternMove 20s linear infinite;
+        }
+        
+        @keyframes patternMove {
+            0% { background-position: 0 0, 0 0, 0 0; }
+            100% { background-position: 100px 100px, -150px -150px, 20px 20px; }
+        }
+        
+        /* Content Templates */
+        .content-template-card {
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .content-template-card:hover {
+            border-color: var(--sage-green);
+            transform: translateY(-4px);
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .tool-icon {
+                width: 48px;
+                height: 48px;
+                font-size: 1.5rem;
+            }
+            
+            .calendar-day {
+                min-height: 80px;
+                padding: 4px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 nav-blur border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="index.html" class="text-2xl font-bold text-gradient">SocialTush</a>
+                </div>
+                
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="index.html" class="text-gray-700 hover:text-sage-green transition-colors duration-200">Home</a>
+                    <a href="services.html" class="text-gray-700 hover:text-sage-green transition-colors duration-200">Services</a>
+                    <a href="tools.html" class="text-sage-green font-medium">Tools</a>
+                    <a href="contact.html" class="text-gray-700 hover:text-sage-green transition-colors duration-200">Contact</a>
+                </div>
+                
+                <div class="flex items-center">
+                    <a href="contact.html" class="btn-primary text-white px-6 py-2 rounded-full font-medium">
+                        Get Free Audit
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Tools Hero -->
+    <section class="pt-24 pb-16 bg-gradient-to-br from-gray-50 to-white geometric-bg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h1 class="text-4xl md:text-6xl font-bold mb-6 text-gradient">
+                    Free Marketing Tools
+                </h1>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    Powerful social media marketing tools to help you plan, analyze, and optimize your campaigns. 
+                    No registration required - start using them right away.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Content Calendar Generator -->
+    <section class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold mb-6">
+                    Content Calendar Generator
+                </h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    Plan your social media content with our interactive calendar. Drag and drop to reschedule, 
+                    click to add new content, and export when you're ready.
+                </p>
+            </div>
+            
+            <div class="max-w-6xl mx-auto">
+                <!-- Calendar Controls -->
+                <div class="flex flex-col md:flex-row justify-between items-center mb-8 space-y-4 md:space-y-0">
+                    <div class="flex items-center space-x-4">
+                        <button id="prev-month" class="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                            </svg>
+                        </button>
+                        <h3 class="text-2xl font-bold" id="current-month">December 2025</h3>
+                        <button id="next-month" class="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <div class="flex items-center space-x-4">
+                        <select id="content-type" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sage-green focus:border-transparent">
+                            <option value="video">Video Content</option>
+                            <option value="image">Image Post</option>
+                            <option value="text">Text Update</option>
+                            <option value="link">Link Share</option>
+                            <option value="poll">Poll/Survey</option>
+                        </select>
+                        <button id="add-content" class="btn-primary text-white px-6 py-2 rounded-full font-medium">
+                            Add Content
+                        </button>
+                        <button id="export-calendar" class="border border-sage-green text-sage-green px-6 py-2 rounded-full font-medium hover:bg-sage-green hover:text-white transition-colors">
+                            Export
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Calendar -->
+                <div class="calendar-grid mb-8" id="calendar-grid">
+                    <!-- Calendar will be generated by JavaScript -->
+                </div>
+                
+                <!-- Content Templates -->
+                <div class="bg-gray-50 p-6 rounded-2xl">
+                    <h4 class="text-lg font-semibold mb-4">Content Templates</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="content-template-card bg-white p-4 rounded-lg cursor-pointer hover:shadow-lg transition-shadow" data-template="motivational">
+                            <div class="text-2xl mb-2">💪</div>
+                            <h5 class="font-semibold mb-2">Motivational Monday</h5>
+                            <p class="text-sm text-gray-600">Start the week with inspiring content</p>
+                        </div>
+                        <div class="content-template-card bg-white p-4 rounded-lg cursor-pointer hover:shadow-lg transition-shadow" data-template="tips">
+                            <div class="text-2xl mb-2">💡</div>
+                            <h5 class="font-semibold mb-2">Tip Tuesday</h5>
+                            <p class="text-sm text-gray-600">Share valuable tips and insights</p>
+                        </div>
+                        <div class="content-template-card bg-white p-4 rounded-lg cursor-pointer hover:shadow-lg transition-shadow" data-template="behind-scenes">
+                            <div class="text-2xl mb-2">🎬</div>
+                            <h5 class="font-semibold mb-2">Behind the Scenes</h5>
+                            <p class="text-sm text-gray-600">Show your process and team</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Social Media Audit Tool -->
+    <section class="py-20 bg-gradient-to-br from-gray-50 to-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold mb-6">
+                    Social Media Audit Tool
+                </h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    Get a comprehensive analysis of your social media presence. Identify opportunities, 
+                    fix issues, and optimize your profiles for maximum impact.
+                </p>
+            </div>
+            
+            <div class="max-w-4xl mx-auto">
+                <div class="tool-card p-8 rounded-3xl">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                        <!-- Input Section -->
+                        <div>
+                            <h3 class="text-2xl font-bold mb-8">Enter Your Profile URLs</h3>
+                            
+                            <div class="space-y-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        Facebook Page URL
+                                    </label>
+                                    <input type="url" id="facebook-url" placeholder="https://facebook.com/yourpage" 
+                                           class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sage-green focus:border-transparent">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        Instagram Profile URL
+                                    </label>
+                                    <input type="url" id="instagram-url" placeholder="https://instagram.com/yourprofile" 
+                                           class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sage-green focus:border-transparent">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        Twitter Profile URL
+                                    </label>
+                                    <input type="url" id="twitter-url" placeholder="https://twitter.com/yourprofile" 
+                                           class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sage-green focus:border-transparent">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        LinkedIn Company URL
+                                    </label>
+                                    <input type="url" id="linkedin-url" placeholder="https://linkedin.com/company/yourcompany" 
+                                           class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sage-green focus:border-transparent">
+                                </div>
+                                
+                                <button id="run-audit" class="btn-primary text-white px-8 py-3 rounded-full font-semibold w-full">
+                                    Run Free Audit
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Results Section -->
+                        <div id="audit-results" class="hidden">
+                            <h3 class="text-2xl font-bold mb-8">Your Audit Results</h3>
+                            
+                            <!-- Overall Score -->
+                            <div class="text-center mb-8">
+                                <div class="audit-score w-32 h-32 mx-auto mb-4">
+                                    <div class="audit-score-inner">
+                                        <div class="text-3xl font-bold text-gradient" id="overall-score">0</div>
+                                        <div class="text-sm text-gray-600">Overall Score</div>
+                                    </div>
+                                </div>
+                                <p class="text-gray-600">Out of 100 possible points</p>
+                            </div>
+                            
+                            <!-- Detailed Scores -->
+                            <div class="space-y-4 mb-8">
+                                <div class="flex items-center justify-between p-4 bg-white rounded-lg">
+                                    <span class="font-medium">Profile Optimization</span>
+                                    <div class="flex items-center">
+                                        <div class="w-24 h-2 bg-gray-200 rounded-full mr-3">
+                                            <div class="h-full bg-sage-green rounded-full" style="width: 75%" id="profile-score-bar"></div>
+                                        </div>
+                                        <span class="font-semibold text-sage-green" id="profile-score">75</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center justify-between p-4 bg-white rounded-lg">
+                                    <span class="font-medium">Content Quality</span>
+                                    <div class="flex items-center">
+                                        <div class="w-24 h-2 bg-gray-200 rounded-full mr-3">
+                                            <div class="h-full bg-terracotta rounded-full" style="width: 60%" id="content-score-bar"></div>
+                                        </div>
+                                        <span class="font-semibold text-terracotta" id="content-score">60</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center justify-between p-4 bg-white rounded-lg">
+                                    <span class="font-medium">Engagement Rate</span>
+                                    <div class="flex items-center">
+                                        <div class="w-24 h-2 bg-gray-200 rounded-full mr-3">
+                                            <div class="h-full bg-muted-blue rounded-full" style="width: 45%" id="engagement-score-bar"></div>
+                                        </div>
+                                        <span class="font-semibold text-muted-blue" id="engagement-score">45</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Recommendations -->
+                            <div class="bg-gradient-to-br from-sage-green to-terracotta text-white p-6 rounded-2xl">
+                                <h4 class="text-lg font-semibold mb-4">Priority Recommendations</h4>
+                                <ul id="recommendations" class="space-y-2">
+                                    <li>• Optimize your profile descriptions with keywords</li>
+                                    <li>• Increase posting frequency for better engagement</li>
+                                    <li>• Add call-to-action buttons to your profiles</li>
+                                    <li>• Use more relevant hashtags in your posts</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="mt-8">
+                                <button id="download-report" class="border border-sage-green text-sage-green px-6 py-3 rounded-full font-semibold hover:bg-sage-green hover:text-white transition-colors w-full">
+                                    Download Full Report
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Additional Tools -->
+    <section class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold mb-6">
+                    More Free Tools
+                </h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    Additional tools to help you with various aspects of social media marketing and content creation.
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Password Generator -->
+                <div class="tool-card p-8 rounded-2xl">
+                    <div class="tool-icon mx-auto mb-6">
+                        🔐
+                    </div>
+                    <h3 class="text-xl font-bold mb-4">Password Generator</h3>
+                    <p class="text-gray-600 mb-6">
+                        Create strong, secure passwords for your social media accounts with customizable options.
+                    </p>
+                    <div class="space-y-4 mb-6">
+                        <div class="flex items-center justify-between">
+                            <label class="text-sm font-medium">Length: <span id="password-length-value">16</span></label>
+                            <input type="range" min="8" max="32" value="16" class="w-24" id="password-length">
+                        </div>
+                        <div class="bg-gray-100 p-3 rounded-lg font-mono text-sm" id="generated-password">
+                            Click generate to create password
+                        </div>
+                        <div class="password-strength mb-4">
+                            <div class="password-strength-weak" id="strength-bar"></div>
+                        </div>
+                    </div>
+                    <button id="generate-password" class="btn-primary text-white px-6 py-2 rounded-full font-medium w-full">
+                        Generate Password
+                    </button>
+                </div>
+                
+                <!-- Hashtag Research -->
+                <div class="tool-card p-8 rounded-2xl">
+                    <div class="tool-icon mx-auto mb-6">
+                        #️⃣
+                    </div>
+                    <h3 class="text-xl font-bold mb-4">Hashtag Research</h3>
+                    <p class="text-gray-600 mb-6">
+                        Find trending hashtags and get suggestions based on your content and industry.
+                    </p>
+                    <div class="space-y-4 mb-6">
+                        <input type="text" placeholder="Enter your topic or keyword" 
+                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sage-green focus:border-transparent" id="hashtag-keyword">
+                        <div class="bg-gray-100 p-3 rounded-lg min-h-[100px]" id="hashtag-results">
+                            Enter a keyword to get hashtag suggestions
+                        </div>
+                    </div>
+                    <button id="research-hashtags" class="btn-primary text-white px-6 py-2 rounded-full font-medium w-full">
+                        Research Hashtags
+                    </button>
+                </div>
+                
+                <!-- Best Posting Times -->
+                <div class="tool-card p-8 rounded-2xl">
+                    <div class="tool-icon mx-auto mb-6">
+                        🕐
+                    </div>
+                    <h3 class="text-xl font-bold mb-4">Best Posting Times</h3>
+                    <p class="text-gray-600 mb-6">
+                        Find the optimal times to post on different platforms based on your audience location.
+                    </p>
+                    <div class="space-y-4 mb-6">
+                        <select class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sage-green focus:border-transparent" id="platform-select">
+                            <option value="facebook">Facebook</option>
+                            <option value="instagram">Instagram</option>
+                            <option value="twitter">Twitter</option>
+                            <option value="linkedin">LinkedIn</option>
+                            <option value="tiktok">TikTok</option>
+                        </select>
+                        <select class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sage-green focus:border-transparent" id="timezone-select">
+                            <option value="EST">Eastern Time (EST)</option>
+                            <option value="CST">Central Time (CST)</option>
+                            <option value="MST">Mountain Time (MST)</option>
+                            <option value="PST">Pacific Time (PST)</option>
+                        </select>
+                        <div class="bg-gray-100 p-3 rounded-lg" id="posting-times">
+                            Select platform and timezone
+                        </div>
+                    </div>
+                    <button id="get-posting-times" class="btn-primary text-white px-6 py-2 rounded-full font-medium w-full">
+                        Get Best Times
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-20 bg-gradient-to-br from-sage-green to-terracotta text-white">
+        <div class="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
+            <h2 class="text-4xl md:text-5xl font-bold mb-6">
+                Need More Advanced Features?
+            </h2>
+            <p class="text-xl mb-8 opacity-90">
+                Our paid plans include advanced analytics, team collaboration, and premium support. 
+                Upgrade to unlock the full potential of your social media marketing.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="services.html" class="bg-white text-sage-green px-8 py-4 rounded-full font-semibold text-lg hover:bg-gray-100 transition-all duration-300 inline-block">
+                    View Premium Features
+                </a>
+                <a href="contact.html" class="border-2 border-white text-white px-8 py-4 rounded-full font-semibold text-lg hover:bg-white hover:text-sage-green transition-all duration-300 inline-block">
+                    Schedule Demo
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-charcoal text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div class="col-span-1 md:col-span-2">
+                    <div class="text-3xl font-bold text-gradient mb-4">SocialTush</div>
+                    <p class="text-gray-400 mb-6 max-w-md">
+                        Transforming social media from a cost center into a revenue engine. 
+                        Data-driven strategies that deliver measurable ROI for growing businesses.
+                    </p>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Quick Links</h3>
+                    <ul class="space-y-2">
+                        <li><a href="services.html" class="text-gray-400 hover:text-white transition-colors">Services</a></li>
+                        <li><a href="tools.html" class="text-gray-400 hover:text-white transition-colors">Free Tools</a></li>
+                        <li><a href="contact.html" class="text-gray-400 hover:text-white transition-colors">Contact</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Contact Info</h3>
+                    <ul class="space-y-2 text-gray-400">
+                        <li>Nairobi, Kenya</li>
+                        <li>+254-727424569</li>
+                        <li>support@socialtush.com</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2025 SocialTush. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Tools functionality will be implemented here
+        document.addEventListener('DOMContentLoaded', function() {
+            initCalendarGenerator();
+            initAuditTool();
+            initPasswordGenerator();
+            initHashtagResearch();
+            initPostingTimes();
+        });
+
+        // Calendar Generator
+        function initCalendarGenerator() {
+            let currentDate = new Date();
+            let selectedDate = null;
+            let calendarContent = {};
+
+            const calendarGrid = document.getElementById('calendar-grid');
+            const currentMonthEl = document.getElementById('current-month');
+            const prevMonthBtn = document.getElementById('prev-month');
+            const nextMonthBtn = document.getElementById('next-month');
+            const addContentBtn = document.getElementById('add-content');
+            const exportBtn = document.getElementById('export-calendar');
+
+            // Generate calendar
+            function generateCalendar() {
+                const year = currentDate.getFullYear();
+                const month = currentDate.getMonth();
+                
+                // Update month display
+                const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                    'July', 'August', 'September', 'October', 'November', 'December'];
+                currentMonthEl.textContent = `${monthNames[month]} ${year}`;
+
+                // Clear calendar
+                calendarGrid.innerHTML = '';
+
+                // Add day headers
+                const dayHeaders = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                dayHeaders.forEach(day => {
+                    const dayHeader = document.createElement('div');
+                    dayHeader.className = 'calendar-day font-semibold text-center text-gray-600 bg-gray-100';
+                    dayHeader.textContent = day;
+                    calendarGrid.appendChild(dayHeader);
+                });
+
+                // Get first day of month and number of days
+                const firstDay = new Date(year, month, 1).getDay();
+                const daysInMonth = new Date(year, month + 1, 0).getDate();
+                const daysInPrevMonth = new Date(year, month, 0).getDate();
+
+                // Add previous month's trailing days
+                for (let i = firstDay - 1; i >= 0; i--) {
+                    const dayEl = createDayElement(daysInPrevMonth - i, true, year, month - 1);
+                    calendarGrid.appendChild(dayEl);
+                }
+
+                // Add current month's days
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const dayEl = createDayElement(day, false, year, month);
+                    calendarGrid.appendChild(dayEl);
+                }
+
+                // Add next month's leading days
+                const totalCells = calendarGrid.children.length - 7; // Subtract headers
+                const remainingCells = 42 - totalCells; // 6 rows * 7 days - current cells
+                for (let day = 1; day <= remainingCells; day++) {
+                    const dayEl = createDayElement(day, true, year, month + 1);
+                    calendarGrid.appendChild(dayEl);
+                }
+            }
+
+            function createDayElement(day, isOtherMonth, year, month) {
+                const dayEl = document.createElement('div');
+                dayEl.className = `calendar-day ${isOtherMonth ? 'other-month' : ''}`;
+                
+                const today = new Date();
+                if (!isOtherMonth && day === today.getDate() && 
+                    month === today.getMonth() && year === today.getFullYear()) {
+                    dayEl.classList.add('today');
+                }
+
+                const dayNumber = document.createElement('div');
+                dayNumber.className = 'font-semibold mb-1';
+                dayNumber.textContent = day;
+                dayEl.appendChild(dayNumber);
+
+                // Add content if exists
+                const dateKey = `${year}-${month}-${day}`;
+                if (calendarContent[dateKey]) {
+                    calendarContent[dateKey].forEach(content => {
+                        const contentEl = document.createElement('div');
+                        contentEl.className = `content-item ${content.type}`;
+                        contentEl.textContent = content.title;
+                        dayEl.appendChild(contentEl);
+                    });
+                }
+
+                // Add click listener
+                dayEl.addEventListener('click', () => {
+                    selectedDate = { day, month, year };
+                    openContentModal();
+                });
+
+                return dayEl;
+            }
+
+            // Navigation
+            prevMonthBtn.addEventListener('click', () => {
+                currentDate.setMonth(currentDate.getMonth() - 1);
+                generateCalendar();
+            });
+
+            nextMonthBtn.addEventListener('click', () => {
+                currentDate.setMonth(currentDate.getMonth() + 1);
+                generateCalendar();
+            });
+
+            // Add content button
+            addContentBtn.addEventListener('click', () => {
+                const today = new Date();
+                selectedDate = { 
+                    day: today.getDate(), 
+                    month: today.getMonth(), 
+                    year: today.getFullYear() 
+                };
+                openContentModal();
+            });
+
+            // Export calendar
+            exportBtn.addEventListener('click', () => {
+                const calendarData = {
+                    month: currentDate.toISOString(),
+                    content: calendarContent
+                };
+                
+                const blob = new Blob([JSON.stringify(calendarData, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `social-media-calendar-${currentDate.getMonth() + 1}-${currentDate.getFullYear()}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+            });
+
+            // Content templates
+            document.querySelectorAll('[data-template]').forEach(template => {
+                template.addEventListener('click', () => {
+                    const templateType = template.dataset.template;
+                    applyTemplate(templateType);
+                });
+            });
+
+            function applyTemplate(templateType) {
+                const templates = {
+                    motivational: {
+                        title: 'Motivational Monday',
+                        type: 'text',
+                        platforms: ['facebook', 'instagram', 'twitter']
+                    },
+                    tips: {
+                        title: 'Tip Tuesday',
+                        type: 'image',
+                        platforms: ['facebook', 'instagram', 'linkedin']
+                    },
+                    'behind-scenes': {
+                        title: 'Behind the Scenes',
+                        type: 'video',
+                        platforms: ['instagram', 'facebook', 'tiktok']
+                    }
+                };
+
+                const template = templates[templateType];
+                if (template) {
+                    // Add template to selected date or today
+                    const today = new Date();
+                    const dateKey = `${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`;
+                    
+                    if (!calendarContent[dateKey]) {
+                        calendarContent[dateKey] = [];
+                    }
+                    
+                    calendarContent[dateKey].push(template);
+                    generateCalendar();
+                }
+            }
+
+            function openContentModal() {
+                // Simple implementation - in a real app, this would open a proper modal
+                const contentType = document.getElementById('content-type').value;
+                const title = prompt('Enter content title:');
+                
+                if (title && selectedDate) {
+                    const dateKey = `${selectedDate.year}-${selectedDate.month}-${selectedDate.day}`;
+                    
+                    if (!calendarContent[dateKey]) {
+                        calendarContent[dateKey] = [];
+                    }
+                    
+                    calendarContent[dateKey].push({
+                        title: title,
+                        type: contentType,
+                        platforms: ['facebook', 'instagram', 'twitter']
+                    });
+                    
+                    generateCalendar();
+                }
+            }
+
+            // Initialize calendar
+            generateCalendar();
+        }
+
+        // Audit Tool
+        function initAuditTool() {
+            const runAuditBtn = document.getElementById('run-audit');
+            const auditResults = document.getElementById('audit-results');
+            const downloadReportBtn = document.getElementById('download-report');
+
+            runAuditBtn.addEventListener('click', () => {
+                const facebookUrl = document.getElementById('facebook-url').value;
+                const instagramUrl = document.getElementById('instagram-url').value;
+                const twitterUrl = document.getElementById('twitter-url').value;
+                const linkedinUrl = document.getElementById('linkedin-url').value;
+
+                // Simulate audit process
+                runAuditBtn.textContent = 'Running Audit...';
+                runAuditBtn.disabled = true;
+
+                setTimeout(() => {
+                    performAudit(facebookUrl, instagramUrl, twitterUrl, linkedinUrl);
+                    auditResults.classList.remove('hidden');
+                    runAuditBtn.textContent = 'Run Free Audit';
+                    runAuditBtn.disabled = false;
+                }, 2000);
+            });
+
+            downloadReportBtn.addEventListener('click', () => {
+                // Generate and download audit report
+                const reportData = {
+                    timestamp: new Date().toISOString(),
+                    overallScore: 72,
+                    profileScore: 75,
+                    contentScore: 60,
+                    engagementScore: 45,
+                    recommendations: [
+                        'Optimize your profile descriptions with keywords',
+                        'Increase posting frequency for better engagement',
+                        'Add call-to-action buttons to your profiles',
+                        'Use more relevant hashtags in your posts'
+                    ]
+                };
+
+                const blob = new Blob([JSON.stringify(reportData, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'social-media-audit-report.json';
+                a.click();
+                URL.revokeObjectURL(url);
+            });
+        }
+
+        function performAudit(facebook, instagram, twitter, linkedin) {
+            // Simulate audit scores
+            const overallScore = Math.floor(Math.random() * 30) + 60; // 60-90
+            const profileScore = Math.floor(Math.random() * 25) + 65; // 65-90
+            const contentScore = Math.floor(Math.random() * 30) + 50; // 50-80
+            const engagementScore = Math.floor(Math.random() * 35) + 40; // 40-75
+
+            // Animate scores
+            animateScore('overall-score', overallScore);
+            animateScore('profile-score', profileScore);
+            animateScore('content-score', contentScore);
+            animateScore('engagement-score', engagementScore);
+
+            // Update progress bars
+            updateProgressBar('profile-score-bar', profileScore);
+            updateProgressBar('content-score-bar', contentScore);
+            updateProgressBar('engagement-score-bar', engagementScore);
+        }
+
+        function animateScore(elementId, targetScore) {
+            const element = document.getElementById(elementId);
+            let currentScore = 0;
+            const increment = targetScore / 50;
+
+            const timer = setInterval(() => {
+                currentScore += increment;
+                if (currentScore >= targetScore) {
+                    currentScore = targetScore;
+                    clearInterval(timer);
+                }
+                element.textContent = Math.floor(currentScore);
+            }, 30);
+        }
+
+        function updateProgressBar(elementId, percentage) {
+            const element = document.getElementById(elementId);
+            element.style.width = percentage + '%';
+        }
+
+        // Password Generator
+        function initPasswordGenerator() {
+            const generateBtn = document.getElementById('generate-password');
+            const lengthSlider = document.getElementById('password-length');
+            const lengthValue = document.getElementById('password-length-value');
+            const passwordOutput = document.getElementById('generated-password');
+            const strengthBar = document.getElementById('strength-bar');
+
+            lengthSlider.addEventListener('input', () => {
+                lengthValue.textContent = lengthSlider.value;
+            });
+
+            generateBtn.addEventListener('click', () => {
+                const length = parseInt(lengthSlider.value);
+                const password = generatePassword(length);
+                passwordOutput.textContent = password;
+                updatePasswordStrength(length);
+            });
+        }
+
+        function generatePassword(length) {
+            const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
+            let password = '';
+            for (let i = 0; i < length; i++) {
+                password += charset.charAt(Math.floor(Math.random() * charset.length));
+            }
+            return password;
+        }
+
+        function updatePasswordStrength(length) {
+            const strengthBar = document.getElementById('strength-bar');
+            strengthBar.className = '';
+            
+            if (length < 12) {
+                strengthBar.className = 'password-strength-weak';
+            } else if (length < 20) {
+                strengthBar.className = 'password-strength-medium';
+            } else {
+                strengthBar.className = 'password-strength-strong';
+            }
+        }
+
+        // Hashtag Research
+        function initHashtagResearch() {
+            const researchBtn = document.getElementById('research-hashtags');
+            const keywordInput = document.getElementById('hashtag-keyword');
+            const resultsDiv = document.getElementById('hashtag-results');
+
+            researchBtn.addEventListener('click', () => {
+                const keyword = keywordInput.value.trim();
+                if (!keyword) return;
+
+                const hashtags = generateHashtags(keyword);
+                resultsDiv.innerHTML = hashtags.map(tag => `<span class="inline-block bg-sage-green text-white px-2 py-1 rounded m-1">${tag}</span>`).join('');
+            });
+        }
+
+        function generateHashtags(keyword) {
+            const baseHashtags = {
+                'marketing': ['#marketing', '#digitalmarketing', '#socialmedia', '#contentmarketing', '#marketingtips'],
+                'business': ['#business', '#entrepreneur', '#startup', '#smallbusiness', '#businessgrowth'],
+                'design': ['#design', '#graphicdesign', '#webdesign', '#uidesign', '#creative'],
+                'technology': ['#technology', '#tech', '#innovation', '#ai', '#digital'],
+                'fitness': ['#fitness', '#health', '#workout', '#gym', '#wellness']
+            };
+
+            const specificHashtags = baseHashtags[keyword.toLowerCase()] || [
+                `#${keyword.toLowerCase()}`, `#${keyword.toLowerCase()}tips`, 
+                `#${keyword.toLowerCase()}life`, `#${keyword.toLowerCase()}community`
+            ];
+
+            return [...specificHashtags, '#trending', '#viral', '#instagood'].slice(0, 10);
+        }
+
+        // Best Posting Times
+        function initPostingTimes() {
+            const getTimesBtn = document.getElementById('get-posting-times');
+            const platformSelect = document.getElementById('platform-select');
+            const timezoneSelect = document.getElementById('timezone-select');
+            const timesDiv = document.getElementById('posting-times');
+
+            getTimesBtn.addEventListener('click', () => {
+                const platform = platformSelect.value;
+                const timezone = timezoneSelect.value;
+                
+                const bestTimes = getBestPostingTimes(platform, timezone);
+                timesDiv.innerHTML = bestTimes.map(time => 
+                    `<div class="flex justify-between items-center py-2 border-b border-gray-200 last:border-b-0">
+                        <span>${time.day}</span>
+                        <span class="font-semibold text-sage-green">${time.times}</span>
+                    </div>`
+                ).join('');
+            });
+        }
+
+        function getBestPostingTimes(platform, timezone) {
+            const platformTimes = {
+                'facebook': [
+                    { day: 'Monday', times: '8:00 AM, 1:00 PM, 3:00 PM' },
+                    { day: 'Tuesday', times: '8:00 AM, 1:00 PM, 3:00 PM' },
+                    { day: 'Wednesday', times: '8:00 AM, 1:00 PM, 3:00 PM' },
+                    { day: 'Thursday', times: '8:00 AM, 1:00 PM, 3:00 PM' },
+                    { day: 'Friday', times: '8:00 AM, 1:00 PM, 3:00 PM' },
+                    { day: 'Saturday', times: '10:00 AM, 2:00 PM' },
+                    { day: 'Sunday', times: '10:00 AM, 2:00 PM' }
+                ],
+                'instagram': [
+                    { day: 'Monday', times: '6:00 AM, 11:00 AM, 1:00 PM' },
+                    { day: 'Tuesday', times: '6:00 AM, 10:00 AM, 1:00 PM' },
+                    { day: 'Wednesday', times: '6:00 AM, 11:00 AM, 1:00 PM' },
+                    { day: 'Thursday', times: '6:00 AM, 11:00 AM, 1:00 PM' },
+                    { day: 'Friday', times: '6:00 AM, 11:00 AM, 1:00 PM' },
+                    { day: 'Saturday', times: '9:00 AM, 2:00 PM' },
+                    { day: 'Sunday', times: '9:00 AM, 2:00 PM' }
+                ],
+                'twitter': [
+                    { day: 'Monday', times: '8:00 AM, 12:00 PM, 5:00 PM' },
+                    { day: 'Tuesday', times: '8:00 AM, 12:00 PM, 5:00 PM' },
+                    { day: 'Wednesday', times: '8:00 AM, 12:00 PM, 5:00 PM' },
+                    { day: 'Thursday', times: '8:00 AM, 12:00 PM, 5:00 PM' },
+                    { day: 'Friday', times: '8:00 AM, 12:00 PM, 5:00 PM' },
+                    { day: 'Saturday', times: '10:00 AM, 3:00 PM' },
+                    { day: 'Sunday', times: '10:00 AM, 3:00 PM' }
+                ],
+                'linkedin': [
+                    { day: 'Monday', times: '8:00 AM, 12:00 PM, 5:00 PM' },
+                    { day: 'Tuesday', times: '8:00 AM, 12:00 PM, 5:00 PM' },
+                    { day: 'Wednesday', times: '8:00 AM, 12:00 PM, 5:00 PM' },
+                    { day: 'Thursday', times: '8:00 AM, 12:00 PM, 5:00 PM' },
+                    { day: 'Friday', times: '8:00 AM, 12:00 PM, 3:00 PM' },
+                    { day: 'Saturday', times: '10:00 AM' },
+                    { day: 'Sunday', times: '10:00 AM' }
+                ],
+                'tiktok': [
+                    { day: 'Monday', times: '6:00 AM, 10:00 AM, 10:00 PM' },
+                    { day: 'Tuesday', times: '2:00 AM, 4:00 AM, 9:00 PM' },
+                    { day: 'Wednesday', times: '7:00 AM, 8:00 AM, 11:00 PM' },
+                    { day: 'Thursday', times: '9:00 AM, 12:00 AM, 7:00 PM' },
+                    { day: 'Friday', times: '5:00 AM, 1:00 PM, 3:00 PM' },
+                    { day: 'Saturday', times: '11:00 AM, 7:00 PM, 8:00 PM' },
+                    { day: 'Sunday', times: '7:00 AM, 8:00 AM, 4:00 PM' }
+                ]
+            };
+
+            return platformTimes[platform] || platformTimes['facebook'];
+        }
+    </script>
+    <script src="main.js"></script>
+</body>
+</html>
