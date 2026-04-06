@@ -1,769 +1,59 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contact - SocialTush</title>
-    <meta name="description" content="Get in touch with SocialTush for a free consultation. Multiple ways to contact us including live chat, phone, email, and contact form.">
-    
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Core Libraries -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
-    
-    <style>
-        :root {
-            --sage-green: #7c9885;
-            --terracotta: #c4896b;
-            --charcoal: #1a1a1a;
-            --warm-white: #fafafa;
-            --soft-gray: #e8e8e8;
-            --muted-blue: #6b7c93;
-            --cream: #f5f3f0;
-        }
-        
-        body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, var(--warm-white) 0%, var(--cream) 100%);
-            color: var(--charcoal);
-            line-height: 1.6;
-        }
-        
-        .text-gradient {
-            background: linear-gradient(135deg, var(--sage-green), var(--terracotta));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, var(--sage-green), var(--terracotta));
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            transform-style: preserve-3d;
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-2px) rotateX(5deg);
-            box-shadow: 0 20px 40px rgba(124, 152, 133, 0.3);
-        }
-        
-        .card-hover {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        .card-hover:hover {
-            transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
-        }
-        
-        .reveal {
-            opacity: 0;
-            transform: translateY(30px);
-        }
-        
-        .reveal.active {
-            opacity: 1;
-            transform: translateY(0);
-            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        .nav-blur {
-            backdrop-filter: blur(10px);
-            background: rgba(250, 250, 250, 0.9);
-        }
-        
-        .form-step {
-            display: none;
-        }
-        
-        .form-step.active {
-            display: block;
-        }
-        
-        .progress-bar {
-            height: 4px;
-            background: var(--soft-gray);
-            border-radius: 2px;
-            overflow: hidden;
-        }
-        
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--sage-green), var(--terracotta));
-            border-radius: 2px;
-            transition: width 0.5s ease;
-        }
-        
-        .floating-label {
-            position: relative;
-        }
-        
-        .floating-label input,
-        .floating-label textarea,
-        .floating-label select {
-            padding: 16px 12px 8px 12px;
-            border: 2px solid var(--soft-gray);
-            border-radius: 8px;
-            background: white;
-            transition: all 0.3s ease;
-        }
-        
-        .floating-label input:focus,
-        .floating-label textarea:focus,
-        .floating-label select:focus {
-            border-color: var(--sage-green);
-            box-shadow: 0 0 0 3px rgba(124, 152, 133, 0.1);
-        }
-        
-        .floating-label label {
-            position: absolute;
-            left: 12px;
-            top: 16px;
-            color: #6b7280;
-            transition: all 0.3s ease;
-            pointer-events: none;
-            background: white;
-            padding: 0 4px;
-        }
-        
-        .floating-label input:focus + label,
-        .floating-label textarea:focus + label,
-        .floating-label select:focus + label,
-        .floating-label input:not(:placeholder-shown) + label,
-        .floating-label textarea:not(:placeholder-shown) + label,
-        .floating-label select:not([value=""]) + label {
-            top: -8px;
-            left: 8px;
-            font-size: 12px;
-            color: var(--sage-green);
-        }
-        
-        .chat-widget {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 1000;
-        }
-        
-        .chat-button {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--sage-green), var(--terracotta));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            box-shadow: 0 8px 25px rgba(124, 152, 133, 0.3);
-            transition: all 0.3s ease;
-        }
-        
-        .chat-button:hover {
-            transform: scale(1.1);
-        }
-        
-        .chat-panel {
-            position: absolute;
-            bottom: 80px;
-            right: 0;
-            width: 350px;
-            height: 450px;
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-            display: none;
-            flex-direction: column;
-            overflow: hidden;
-        }
-        
-        .chat-panel.active {
-            display: flex;
-        }
-        
-        .chat-header {
-            background: linear-gradient(135deg, var(--sage-green), var(--terracotta));
-            color: white;
-            padding: 20px;
-            display: flex;
-            justify-content: between;
-            align-items: center;
-        }
-        
-        .chat-messages {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-        }
-        
-        .chat-input-area {
-            padding: 20px;
-            border-top: 1px solid var(--soft-gray);
-        }
-        
-        .message {
-            margin-bottom: 15px;
-            display: flex;
-        }
-        
-        .message.user {
-            justify-content: flex-end;
-        }
-        
-        .message.bot {
-            justify-content: flex-start;
-        }
-        
-        .message-content {
-            max-width: 70%;
-            padding: 12px 16px;
-            border-radius: 18px;
-            font-size: 14px;
-        }
-        
-        .message.user .message-content {
-            background: var(--sage-green);
-            color: white;
-        }
-        
-        .message.bot .message-content {
-            background: var(--cream);
-            color: var(--charcoal);
-        }
-        
-        .contact-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(124, 152, 133, 0.2);
-            transition: all 0.3s ease;
-        }
-        
-        .contact-card:hover {
-            border-color: var(--sage-green);
-            box-shadow: 0 10px 30px rgba(124, 152, 133, 0.2);
-        }
-        
-        .step-indicator {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: var(--soft-gray);
-            color: #6b7280;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-        
-        .step-indicator.active {
-            background: var(--sage-green);
-            color: white;
-        }
-        
-        .step-indicator.completed {
-            background: var(--terracotta);
-            color: white;
-        }
-        
-        /* Contact Icons */
-        .contact-icon {
-            width: 64px;
-            height: 64px;
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            position: relative;
-            overflow: hidden;
-            margin: 0 auto 1.5rem;
-        }
-        
-        .contact-icon::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, var(--sage-green), var(--terracotta));
-            z-index: -1;
-        }
-        
-        .contact-icon::after {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            right: -50%;
-            bottom: -50%;
-            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.2), transparent);
-            transform: rotate(45deg);
-            animation: shine 4s ease-in-out infinite;
-            z-index: -1;
-        }
-        
-        @keyframes shine {
-            0%, 100% { transform: rotate(45deg) translateX(-100%); }
-            50% { transform: rotate(45deg) translateX(100%); }
-        }
-        
-        /* Geometric Background */
-        .geometric-bg {
-            background-image: 
-                radial-gradient(circle at 25% 25%, rgba(124, 152, 133, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 75% 75%, rgba(196, 137, 107, 0.1) 0%, transparent 50%),
-                linear-gradient(45deg, transparent 49%, rgba(124, 152, 133, 0.05) 50%, transparent 51%);
-            background-size: 100px 100px, 150px 150px, 20px 20px;
-            animation: patternMove 20s linear infinite;
-        }
-        
-        @keyframes patternMove {
-            0% { background-position: 0 0, 0 0, 0 0; }
-            100% { background-position: 100px 100px, -150px -150px, 20px 20px; }
-        }
-        
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .contact-icon {
-                width: 48px;
-                height: 48px;
-                font-size: 1.5rem;
-            }
-            
-            .chat-panel {
-                width: 300px;
-                height: 400px;
-                right: -10px;
-            }
-        }
-    </style>
-</head>
-<body>
-    <!-- Navigation -->
-    <nav class="fixed top-0 left-0 right-0 z-50 nav-blur border-b border-gray-200">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center">
-                    <div class="text-2xl font-bold text-gradient">SocialTush</div>
+does the consultation take?</span>
+                        <svg class="faq-icon w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+                    <div class="faq-answer">
+                        <p class="text-gray-600">
+                            Typically 30-45 minutes. We'll review your current social media presence, discuss your goals, 
+                            and present a customized strategy for your business.
+                        </p>
+                    </div>
                 </div>
-                
-                <div class="hidden md:flex items-center space-x-8">
-                    <a href="index.html" class="text-gray-700 hover:text-sage-green transition-colors duration-200">Home</a>
-                    <a href="services.html" class="text-gray-700 hover:text-sage-green transition-colors duration-200">Services</a>
-                    <a href="tools.html" class="text-gray-700 hover:text-sage-green transition-colors duration-200">Tools</a>
-                    <a href="contact.html" class="text-sage-green font-medium">Contact</a>
-                </div>
-                
-                <div class="flex items-center">
-                    <a href="#contact-form" class="btn-primary text-white px-6 py-2 rounded-full font-medium">
-                        Get Free Audit
-                    </a>
-                </div>
-            </div>
-        </div>
-    </nav>
 
-    <!-- Contact Hero -->
-    <section class="pt-24 pb-16 bg-gradient-to-br from-gray-50 to-white geometric-bg">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-12">
-                <h1 class="text-4xl md:text-6xl font-bold mb-6 text-gradient">
-                    Let's Grow Your Business
-                </h1>
-                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
-                    Ready to transform your social media presence? Get in touch with our team for a free consultation 
-                    and discover how we can help you achieve your goals.
-                </p>
-            </div>
-        </div>
-    </section>
+                <div class="faq-item glass">
+                    <button class="faq-question" onclick="toggleFaq(this)">
+                        <span>What do I need to prepare?</span>
+                        <svg class="faq-icon w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+                    <div class="faq-answer">
+                        <p class="text-gray-600">
+                            Just your goals and any questions you have. If you have existing social media accounts, 
+                            we'll do a quick audit during the call. No preparation required on your end.
+                        </p>
+                    </div>
+                </div>
 
-    <!-- Contact Options -->
-    <section class="py-16 bg-white">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div class="contact-card p-8 rounded-2xl text-center reveal">
-                    <div class="contact-icon mx-auto mb-6">
-                        📞
+                <div class="faq-item glass">
+                    <button class="faq-question" onclick="toggleFaq(this)">
+                        <span>Do you work with businesses in my industry?</span>
+                        <svg class="faq-icon w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+                    <div class="faq-answer">
+                        <p class="text-gray-600">
+                            We've worked with businesses across 20+ industries including e-commerce, SaaS, healthcare, 
+                            finance, education, and more. Our strategies are customized for each client.
+                        </p>
                     </div>
-                    <h3 class="text-xl font-bold mb-4">Call Us</h3>
-                    <p class="text-gray-600 mb-4">Speak directly with our team</p>
-                    <a href="tel:+254-727424569" class="text-sage-green font-semibold hover:text-terracotta transition-colors">
-                        +254-727424569
-                    </a>
-                    <p class="text-sm text-gray-500 mt-2">Mon-Fri 9AM-6PM EAT</p>
                 </div>
-                
-                <div class="contact-card p-8 rounded-2xl text-center reveal">
-                    <div class="contact-icon mx-auto mb-6">
-                        📧
-                    </div>
-                    <h3 class="text-xl font-bold mb-4">Email Us</h3>
-                    <p class="text-gray-600 mb-4">Send us a detailed message</p>
-                    <a href="mailto:support@socialtush.com" class="text-sage-green font-semibold hover:text-terracotta transition-colors">
-                        support@socialtush.com
-                    </a>
-                    <p class="text-sm text-gray-500 mt-2">We respond within 24 hours</p>
-                </div>
-                
-                <div class="contact-card p-8 rounded-2xl text-center reveal">
-                    <div class="contact-icon mx-auto mb-6">
-                        📍
-                    </div>
-                    <h3 class="text-xl font-bold mb-4">Visit Us</h3>
-                    <p class="text-gray-600 mb-4">Our office in Nairobi</p>
-                    <p class="text-sage-green font-semibold">
-                        Nairobi, Kenya
-                    </p>
-                    <p class="text-sm text-gray-500 mt-2">By appointment only</p>
-                </div>
-            </div>
-        </div>
-    </section>
 
-    <!-- Multi-Step Contact Form -->
-    <section id="contact-form" class="py-20 bg-gradient-to-br from-gray-50 to-white">
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-16">
-                <h2 class="text-4xl md:text-5xl font-bold mb-6">
-                    Get Your Free Consultation
-                </h2>
-                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
-                    Tell us about your business and social media goals. We'll create a custom strategy 
-                    and show you exactly how we can help you grow.
-                </p>
-            </div>
-            
-            <!-- Progress Indicator -->
-            <div class="mb-12">
-                <div class="flex justify-between items-center mb-4">
-                    <div class="flex items-center">
-                        <div class="step-indicator active" id="step-1-indicator">1</div>
-                        <div class="hidden sm:block ml-3 text-sm font-medium text-sage-green">Contact Info</div>
+                <div class="faq-item glass">
+                    <button class="faq-question" onclick="toggleFaq(this)">
+                        <span>When can we start working together?</span>
+                        <svg class="faq-icon w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+                    <div class="faq-answer">
+                        <p class="text-gray-600">
+                            We can typically start within 1-2 weeks of your consultation, depending on your timeline 
+                            and the scope of work. Rush projects can sometimes be accommodated.
+                        </p>
                     </div>
-                    <div class="flex items-center">
-                        <div class="step-indicator" id="step-2-indicator">2</div>
-                        <div class="hidden sm:block ml-3 text-sm font-medium text-gray-500">Services</div>
-                    </div>
-                    <div class="flex items-center">
-                        <div class="step-indicator" id="step-3-indicator">3</div>
-                        <div class="hidden sm:block ml-3 text-sm font-medium text-gray-500">Project Details</div>
-                    </div>
-                    <div class="flex items-center">
-                        <div class="step-indicator" id="step-4-indicator">4</div>
-                        <div class="hidden sm:block ml-3 text-sm font-medium text-gray-500">Schedule</div>
-                    </div>
-                </div>
-                <div class="progress-bar">
-                    <div class="progress-fill" style="width: 25%" id="progress-fill"></div>
-                </div>
-            </div>
-            
-            <!-- Contact Form -->
-            <div class="bg-white p-8 md:p-12 rounded-3xl shadow-xl">
-                <form id="multi-step-form">
-                    <!-- Step 1: Contact Information -->
-                    <div class="form-step active" data-step="1">
-                        <h3 class="text-2xl font-bold mb-8">Contact Information</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div class="floating-label">
-                                <input type="text" id="firstName" name="firstName" placeholder=" " required>
-                                <label for="firstName">First Name</label>
-                            </div>
-                            <div class="floating-label">
-                                <input type="text" id="lastName" name="lastName" placeholder=" " required>
-                                <label for="lastName">Last Name</label>
-                            </div>
-                            <div class="floating-label">
-                                <input type="email" id="email" name="email" placeholder=" " required>
-                                <label for="email">Email Address</label>
-                            </div>
-                            <div class="floating-label">
-                                <input type="tel" id="phone" name="phone" placeholder=" ">
-                                <label for="phone">Phone Number</label>
-                            </div>
-                            <div class="floating-label md:col-span-2">
-                                <input type="text" id="company" name="company" placeholder=" " required>
-                                <label for="company">Company Name</label>
-                            </div>
-                            <div class="floating-label md:col-span-2">
-                                <input type="text" id="website" name="website" placeholder=" ">
-                                <label for="website">Website URL</label>
-                            </div>
-                        </div>
-                        <div class="flex justify-end mt-8">
-                            <button type="button" class="btn-primary text-white px-8 py-3 rounded-full font-semibold" onclick="nextStep()">
-                                Next Step
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Step 2: Services -->
-                    <div class="form-step" data-step="2">
-                        <h3 class="text-2xl font-bold mb-8">Services & Budget</h3>
-                        <div class="space-y-6">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-4">Which services are you interested in? (Select all that apply)</label>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <label class="flex items-center p-4 border border-gray-200 rounded-lg cursor-pointer hover:border-sage-green transition-colors">
-                                        <input type="checkbox" name="services" value="management" class="mr-3 text-sage-green focus:ring-sage-green">
-                                        <div>
-                                            <div class="font-medium">Social Media Management</div>
-                                            <div class="text-sm text-gray-500">Complete account management</div>
-                                        </div>
-                                    </label>
-                                    <label class="flex items-center p-4 border border-gray-200 rounded-lg cursor-pointer hover:border-sage-green transition-colors">
-                                        <input type="checkbox" name="services" value="content" class="mr-3 text-sage-green focus:ring-sage-green">
-                                        <div>
-                                            <div class="font-medium">Content Creation</div>
-                                            <div class="text-sm text-gray-500">Video, graphics, copywriting</div>
-                                        </div>
-                                    </label>
-                                    <label class="flex items-center p-4 border border-gray-200 rounded-lg cursor-pointer hover:border-sage-green transition-colors">
-                                        <input type="checkbox" name="services" value="advertising" class="mr-3 text-sage-green focus:ring-sage-green">
-                                        <div>
-                                            <div class="font-medium">Paid Advertising</div>
-                                            <div class="text-sm text-gray-500">ROI-focused ad campaigns</div>
-                                        </div>
-                                    </label>
-                                    <label class="flex items-center p-4 border border-gray-200 rounded-lg cursor-pointer hover:border-sage-green transition-colors">
-                                        <input type="checkbox" name="services" value="strategy" class="mr-3 text-sage-green focus:ring-sage-green">
-                                        <div>
-                                            <div class="font-medium">Strategy Consulting</div>
-                                            <div class="text-sm text-gray-500">Strategic guidance</div>
-                                        </div>
-                                    </label>
-                                </div>
-                            </div>
-                            
-                            <div class="floating-label">
-                                <select name="budget" id="budget" required>
-                                    <option value="">Select budget range</option>
-                                    <option value="1000-2500">$1,000 - $2,500/month</option>
-                                    <option value="2500-5000">$2,500 - $5,000/month</option>
-                                    <option value="5000-10000">$5,000 - $10,000/month</option>
-                                    <option value="10000+">$10,000+/month</option>
-                                </select>
-                                <label for="budget">Monthly Budget</label>
-                            </div>
-                            
-                            <div class="floating-label">
-                                <select name="timeline" id="timeline" required>
-                                    <option value="">Select timeline</option>
-                                    <option value="asap">As soon as possible</option>
-                                    <option value="1-month">Within 1 month</option>
-                                    <option value="3-months">Within 3 months</option>
-                                    <option value="6-months">Within 6 months</option>
-                                    <option value="planning">Just planning</option>
-                                </select>
-                                <label for="timeline">Project Timeline</label>
-                            </div>
-                        </div>
-                        <div class="flex justify-between mt-8">
-                            <button type="button" class="border border-gray-300 text-gray-700 px-8 py-3 rounded-full font-semibold hover:bg-gray-50 transition-colors" onclick="prevStep()">
-                                Previous
-                            </button>
-                            <button type="button" class="btn-primary text-white px-8 py-3 rounded-full font-semibold" onclick="nextStep()">
-                                Next Step
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Step 3: Project Details -->
-                    <div class="form-step" data-step="3">
-                        <h3 class="text-2xl font-bold mb-8">Project Details</h3>
-                        <div class="space-y-6">
-                            <div class="floating-label">
-                                <textarea id="goals" name="goals" rows="4" placeholder=" " required></textarea>
-                                <label for="goals">What are your main social media goals?</label>
-                            </div>
-                            
-                            <div class="floating-label">
-                                <textarea id="challenges" name="challenges" rows="4" placeholder=" "></textarea>
-                                <label for="challenges">What challenges are you facing with social media?</label>
-                            </div>
-                            
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-4">Current Social Media Platforms (Select all that apply)</label>
-                                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                    <label class="flex items-center">
-                                        <input type="checkbox" name="platforms" value="facebook" class="mr-2 text-sage-green focus:ring-sage-green">
-                                        <span>Facebook</span>
-                                    </label>
-                                    <label class="flex items-center">
-                                        <input type="checkbox" name="platforms" value="instagram" class="mr-2 text-sage-green focus:ring-sage-green">
-                                        <span>Instagram</span>
-                                    </label>
-                                    <label class="flex items-center">
-                                        <input type="checkbox" name="platforms" value="twitter" class="mr-2 text-sage-green focus:ring-sage-green">
-                                        <span>Twitter</span>
-                                    </label>
-                                    <label class="flex items-center">
-                                        <input type="checkbox" name="platforms" value="linkedin" class="mr-2 text-sage-green focus:ring-sage-green">
-                                        <span>LinkedIn</span>
-                                    </label>
-                                    <label class="flex items-center">
-                                        <input type="checkbox" name="platforms" value="tiktok" class="mr-2 text-sage-green focus:ring-sage-green">
-                                        <span>TikTok</span>
-                                    </label>
-                                    <label class="flex items-center">
-                                        <input type="checkbox" name="platforms" value="youtube" class="mr-2 text-sage-green focus:ring-sage-green">
-                                        <span>YouTube</span>
-                                    </label>
-                                    <label class="flex items-center">
-                                        <input type="checkbox" name="platforms" value="pinterest" class="mr-2 text-sage-green focus:ring-sage-green">
-                                        <span>Pinterest</span>
-                                    </label>
-                                    <label class="flex items-center">
-                                        <input type="checkbox" name="platforms" value="none" class="mr-2 text-sage-green focus:ring-sage-green">
-                                        <span>None yet</span>
-                                    </label>
-                                </div>
-                            </div>
-                            
-                            <div class="floating-label">
-                                <textarea id="additional-info" name="additionalInfo" rows="3" placeholder=" "></textarea>
-                                <label for="additional-info">Anything else you'd like us to know?</label>
-                            </div>
-                        </div>
-                        <div class="flex justify-between mt-8">
-                            <button type="button" class="border border-gray-300 text-gray-700 px-8 py-3 rounded-full font-semibold hover:bg-gray-50 transition-colors" onclick="prevStep()">
-                                Previous
-                            </button>
-                            <button type="button" class="btn-primary text-white px-8 py-3 rounded-full font-semibold" onclick="nextStep()">
-                                Next Step
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Step 4: Schedule -->
-                    <div class="form-step" data-step="4">
-                        <h3 class="text-2xl font-bold mb-8">Schedule Your Consultation</h3>
-                        <div class="space-y-6">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-4">Preferred Contact Method</label>
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <label class="flex items-center p-4 border border-gray-200 rounded-lg cursor-pointer hover:border-sage-green transition-colors">
-                                        <input type="radio" name="contactMethod" value="phone" class="mr-3 text-sage-green focus:ring-sage-green">
-                                        <div>
-                                            <div class="font-medium">Phone Call</div>
-                                            <div class="text-sm text-gray-500">30-minute call</div>
-                                        </div>
-                                    </label>
-                                    <label class="flex items-center p-4 border border-gray-200 rounded-lg cursor-pointer hover:border-sage-green transition-colors">
-                                        <input type="radio" name="contactMethod" value="video" class="mr-3 text-sage-green focus:ring-sage-green">
-                                        <div>
-                                            <div class="font-medium">Video Call</div>
-                                            <div class="text-sm text-gray-500">Zoom/Teams meeting</div>
-                                        </div>
-                                    </label>
-                                    <label class="flex items-center p-4 border border-gray-200 rounded-lg cursor-pointer hover:border-sage-green transition-colors">
-                                        <input type="radio" name="contactMethod" value="email" class="mr-3 text-sage-green focus:ring-sage-green">
-                                        <div>
-                                            <div class="font-medium">Email</div>
-                                            <div class="text-sm text-gray-500">Detailed proposal</div>
-                                        </div>
-                                    </label>
-                                </div>
-                            </div>
-                            
-                            <div class="floating-label">
-                                <input type="datetime-local" id="preferred-time" name="preferredTime" placeholder=" " required>
-                                <label for="preferred-time">Preferred Date & Time</label>
-                            </div>
-                            
-                            <div class="floating-label">
-                                <select name="timezone" id="timezone" required>
-                                    <option value="">Select your timezone</option>
-                                    <option value="EST">Eastern Time (EST)</option>
-                                    <option value="CST">Central Time (CST)</option>
-                                    <option value="MST">Mountain Time (MST)</option>
-                                    <option value="PST">Pacific Time (PST)</option>
-                                    <option value="GMT">Greenwich Mean Time (GMT)</option>
-                                    <option value="CET">Central European Time (CET)</option>
-                                    <option value="EAT">East Africa Time (EAT)</option>
-                                </select>
-                                <label for="timezone">Timezone</label>
-                            </div>
-                            
-                            <div class="bg-gradient-to-br from-sage-green to-terracotta text-white p-6 rounded-2xl">
-                                <h4 class="text-lg font-semibold mb-2">What happens next?</h4>
-                                <ul class="space-y-1 text-sm">
-                                    <li>• We'll review your information and prepare a custom proposal</li>
-                                    <li>• You'll receive a confirmation email with meeting details</li>
-                                    <li>• We'll discuss your goals and show you exactly how we can help</li>
-                                    <li>• No pressure - just helpful advice and transparent pricing</li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="flex justify-between mt-8">
-                            <button type="button" class="border border-gray-300 text-gray-700 px-8 py-3 rounded-full font-semibold hover:bg-gray-50 transition-colors" onclick="prevStep()">
-                                Previous
-                            </button>
-                            <button type="submit" class="btn-primary text-white px-8 py-3 rounded-full font-semibold">
-                                Schedule Free Consultation
-                            </button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </section>
-
-    <!-- FAQ Section -->
-    <section class="py-20 bg-white">
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-16">
-                <h2 class="text-4xl md:text-5xl font-bold mb-6">
-                    Frequently Asked Questions
-                </h2>
-                <p class="text-xl text-gray-600">
-                    Common questions about our consultation process and services.
-                </p>
-            </div>
-            
-            <div class="space-y-6">
-                <div class="bg-gray-50 rounded-2xl p-6">
-                    <h3 class="text-lg font-semibold mb-3">Is the consultation really free?</h3>
-                    <p class="text-gray-600">
-                        Yes, completely free with no strings attached. We'll discuss your goals, analyze your current situation, 
-                        and provide actionable recommendations. You can decide afterward if you want to work with us.
-                    </p>
-                </div>
-                
-                <div class="bg-gray-50 rounded-2xl p-6">
-                    <h3 class="text-lg font-semibold mb-3">How long does the consultation take?</h3>
-                    <p class="text-gray-600">
-                        Typically 30-45 minutes. We'll review your current social media presence, discuss your goals, 
-                        and present a customized strategy for your business.
-                    </p>
-                </div>
-                
-                <div class="bg-gray-50 rounded-2xl p-6">
-                    <h3 class="text-lg font-semibold mb-3">What do I need to prepare?</h3>
-                    <p class="text-gray-600">
-                        Just your goals and any questions you have. If you have existing social media accounts, 
-                        we'll do a quick audit during the call. No preparation required on your end.
-                    </p>
-                </div>
-                
-                <div class="bg-gray-50 rounded-2xl p-6">
-                    <h3 class="text-lg font-semibold mb-3">Do you work with businesses in my industry?</h3>
-                    <p class="text-gray-600">
-                        We've worked with businesses across 20+ industries including e-commerce, SaaS, healthcare, 
-                        finance, education, and more. Our strategies are customized for each client.
-                    </p>
-                </div>
-                
-                <div class="bg-gray-50 rounded-2xl p-6">
-                    <h3 class="text-lg font-semibold mb-3">When can we start working together?</h3>
-                    <p class="text-gray-600">
-                        We can typically start within 1-2 weeks of your consultation, depending on your timeline 
-                        and the scope of work. Rush projects can sometimes be accommodated.
-                    </p>
                 </div>
             </div>
         </div>
@@ -773,11 +63,21 @@
     <div class="chat-widget">
         <div class="chat-panel" id="chat-panel">
             <div class="chat-header">
-                <div>
-                    <h4 class="font-semibold">SocialTush Support</h4>
-                    <p class="text-sm opacity-90">We're here to help!</p>
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold">SocialTush Support</h4>
+                        <p class="text-sm opacity-90 flex items-center gap-2">
+                            <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                            Online now
+                        </p>
+                    </div>
                 </div>
-                <button id="close-chat" class="text-white hover:text-gray-200">
+                <button id="close-chat" class="text-white hover:text-gray-200 transition-colors">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
@@ -786,71 +86,114 @@
             <div class="chat-messages" id="chat-messages">
                 <div class="message bot">
                     <div class="message-content">
-                        Hi! 👋 Welcome to SocialTush. How can I help you today?
+                        Hi there! 👋 Welcome to SocialTush. How can I help you today?
                     </div>
                 </div>
                 <div class="message bot">
                     <div class="message-content">
-                        You can ask me about our services, pricing, or schedule a free consultation.
+                        You can ask me about our services, pricing, or <a href="#contact-form" onclick="closeChatPanel()" style="color: var(--sage-green); text-decoration: underline;">schedule a free consultation</a>.
                     </div>
                 </div>
             </div>
             <div class="chat-input-area">
                 <div class="flex items-center space-x-2">
                     <input type="text" id="chat-input" placeholder="Type your message..." 
-                           class="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sage-green focus:border-transparent">
-                    <button id="send-message" class="btn-primary text-white p-3 rounded-lg">
+                           class="flex-1 p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-sage-green focus:border-transparent outline-none transition-all">
+                    <button id="send-message" class="btn-primary text-white p-4 rounded-xl hover:scale-105 transition-transform">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
                         </svg>
                     </button>
                 </div>
                 <div class="flex items-center justify-between mt-3 text-xs text-gray-500">
-                    <span>Typical response time: 2-5 minutes</span>
-                    <button class="text-sage-green hover:text-terracotta transition-colors">📎 Attach File</button>
+                    <span class="flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        Typical response: 2-5 minutes
+                    </span>
+                    <button class="text-sage-green hover:text-terracotta transition-colors flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
+                        </svg>
+                        Attach File
+                    </button>
                 </div>
             </div>
         </div>
-        <div class="chat-button" id="chat-button">
-            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <button class="chat-button pulse" id="chat-button" aria-label="Open chat">
+            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
             </svg>
-        </div>
+        </button>
     </div>
 
     <!-- Footer -->
-    <footer class="bg-charcoal text-white py-12">
+    <footer class="bg-charcoal text-white py-16">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12">
                 <div class="col-span-1 md:col-span-2">
                     <div class="text-3xl font-bold text-gradient mb-4">SocialTush</div>
-                    <p class="text-gray-400 mb-6 max-w-md">
+                    <p class="text-gray-400 mb-6 max-w-md leading-relaxed">
                         Transforming social media from a cost center into a revenue engine. 
                         Data-driven strategies that deliver measurable ROI for growing businesses.
                     </p>
+                    <div class="flex gap-4">
+                        <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-sage-green transition-colors">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-sage-green transition-colors">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/></svg>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-sage-green transition-colors">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.162-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.663.967-2.911 2.168-2.911 1.024 0 1.518.769 1.518 1.688 0 1.029-.653 2.567-.992 3.992-.285 1.193.6 2.165 1.775 2.165 2.128 0 3.768-2.245 3.768-5.487 0-2.861-2.063-4.869-5.008-4.869-3.41 0-5.409 2.562-5.409 5.199 0 1.033.394 2.143.889 2.741.099.12.112.225.085.345-.09.375-.293 1.199-.334 1.363-.053.225-.172.271-.401.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.92-7.252 4.158 0 7.392 2.967 7.392 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.354-.629-2.758-1.379l-.749 2.848c-.269 1.045-1.004 2.352-1.498 3.146 1.123.345 2.306.535 3.55.535 6.607 0 11.985-5.365 11.985-11.987C23.97 5.39 18.592.026 11.985.026L12.017 0z"/></svg>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-sage-green transition-colors">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                        </a>
+                    </div>
                 </div>
-                
+
                 <div>
                     <h3 class="text-lg font-semibold mb-4">Quick Links</h3>
-                    <ul class="space-y-2">
+                    <ul class="space-y-3">
                         <li><a href="services.html" class="text-gray-400 hover:text-white transition-colors">Services</a></li>
                         <li><a href="tools.html" class="text-gray-400 hover:text-white transition-colors">Free Tools</a></li>
                         <li><a href="contact.html" class="text-gray-400 hover:text-white transition-colors">Contact</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Privacy Policy</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Terms of Service</a></li>
                     </ul>
                 </div>
-                
+
                 <div>
                     <h3 class="text-lg font-semibold mb-4">Contact Info</h3>
-                    <ul class="space-y-2 text-gray-400">
-                        <li>Nairobi, Kenya</li>
-                        <li>+254-727424569</li>
-                        <li>support@socialtush.com</li>
+                    <ul class="space-y-3 text-gray-400">
+                        <li class="flex items-center gap-3">
+                            <svg class="w-5 h-5 text-sage-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            </svg>
+                            Nairobi, Kenya
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <svg class="w-5 h-5 text-sage-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+                            </svg>
+                            +254-727424569
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <svg class="w-5 h-5 text-sage-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                            </svg>
+                            support@socialtush.com
+                        </li>
                     </ul>
                 </div>
             </div>
-            
-            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
-                <p>&copy; 2025 SocialTush. All rights reserved.</p>
+
+            <div class="border-t border-gray-700 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-gray-400 text-sm">&copy; 2025 SocialTush. All rights reserved.</p>
+                <p class="text-gray-500 text-sm">Made with 💚 in Nairobi</p>
             </div>
         </div>
     </footer>
@@ -865,6 +208,7 @@
                 if (currentStep < totalSteps) {
                     currentStep++;
                     updateFormStep();
+                    scrollToForm();
                 }
             }
         }
@@ -873,7 +217,12 @@
             if (currentStep > 1) {
                 currentStep--;
                 updateFormStep();
+                scrollToForm();
             }
+        }
+
+        function scrollToForm() {
+            document.getElementById('contact-form').scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
 
         function updateFormStep() {
@@ -888,16 +237,14 @@
                 currentStepEl.classList.add('active');
             }
 
-            // Update progress bar
-            const progressFill = document.getElementById('progress-fill');
-            progressFill.style.width = `${(currentStep / totalSteps) * 100}%`;
-
             // Update step indicators
             for (let i = 1; i <= totalSteps; i++) {
                 const indicator = document.getElementById(`step-${i}-indicator`);
+                const connector = document.getElementById(`connector-${i}`);
+
                 if (indicator) {
                     indicator.classList.remove('active', 'completed');
-                    
+
                     if (i < currentStep) {
                         indicator.classList.add('completed');
                         indicator.innerHTML = '✓';
@@ -908,6 +255,14 @@
                         indicator.innerHTML = i;
                     }
                 }
+
+                if (connector) {
+                    if (i < currentStep) {
+                        connector.classList.add('completed');
+                    } else {
+                        connector.classList.remove('completed');
+                    }
+                }
             }
         }
 
@@ -916,49 +271,164 @@
             const requiredFields = currentStepEl.querySelectorAll('[required]');
             let isValid = true;
 
+            // Clear previous errors
+            currentStepEl.querySelectorAll('.error').forEach(field => field.classList.remove('error'));
+            currentStepEl.querySelectorAll('.error-message').forEach(msg => msg.classList.remove('show'));
+
+            // Validate required fields
             requiredFields.forEach(field => {
                 if (!field.value.trim()) {
-                    field.classList.add('border-red-500');
+                    field.classList.add('error');
+                    const errorMsg = field.parentElement.querySelector('.error-message');
+                    if (errorMsg) errorMsg.classList.add('show');
                     isValid = false;
-                } else {
-                    field.classList.remove('border-red-500');
+                } else if (field.type === 'email' && !isValidEmail(field.value)) {
+                    field.classList.add('error');
+                    const errorMsg = field.parentElement.querySelector('.error-message');
+                    if (errorMsg) errorMsg.classList.add('show');
+                    isValid = false;
                 }
             });
+
+            // Step-specific validation
+            if (currentStep === 2) {
+                const services = document.querySelectorAll('input[name="services"]:checked');
+                if (services.length === 0) {
+                    document.getElementById('services-error').classList.add('show');
+                    isValid = false;
+                }
+            }
+
+            if (currentStep === 4) {
+                const method = document.querySelector('input[name="contactMethod"]:checked');
+                if (!method) {
+                    document.getElementById('method-error').classList.add('show');
+                    isValid = false;
+                }
+            }
+
+            if (!isValid) {
+                showToast('Please fill in all required fields', 'error');
+            }
 
             return isValid;
         }
 
+        function isValidEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
+
+        // Service card selection
+        function toggleService(card, serviceId) {
+            const checkbox = document.getElementById(`service-${serviceId}`);
+            checkbox.checked = !checkbox.checked;
+            card.classList.toggle('selected', checkbox.checked);
+
+            if (document.querySelectorAll('input[name="services"]:checked').length > 0) {
+                document.getElementById('services-error').classList.remove('show');
+            }
+        }
+
+        // Method card selection
+        function selectMethod(card, methodId) {
+            document.querySelectorAll('.method-card').forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+            document.getElementById(`method-${methodId}`).checked = true;
+            document.getElementById('method-error').classList.remove('show');
+        }
+
+        // Platform checkbox styling
+        document.querySelectorAll('.platform-checkbox input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                this.parentElement.classList.toggle('selected', this.checked);
+            });
+        });
+
         // Form submission
-        document.getElementById('multi-step-form').addEventListener('submit', function(e) {
+        document.getElementById('multi-step-form').addEventListener('submit', async function(e) {
             e.preventDefault();
-            
-            if (validateCurrentStep()) {
+
+            if (!validateCurrentStep()) return;
+
+            const submitBtn = document.getElementById('submit-btn');
+            const spinner = document.getElementById('submit-spinner');
+            const btnText = document.getElementById('submit-text');
+            const btnIcon = document.getElementById('submit-icon');
+
+            // Show loading state
+            submitBtn.disabled = true;
+            spinner.classList.add('show');
+            btnText.textContent = 'Scheduling...';
+            btnIcon.style.display = 'none';
+
+            try {
                 // Collect form data
                 const formData = new FormData(this);
-                const data = Object.fromEntries(formData.entries());
-                
-                // Handle array fields
-                data.services = Array.from(document.querySelectorAll('input[name="services"]:checked')).map(cb => cb.value);
-                data.platforms = Array.from(document.querySelectorAll('input[name="platforms"]:checked')).map(cb => cb.value);
-                
-                // Simulate form submission
-                const submitBtn = document.querySelector('button[type="submit"]');
-                submitBtn.textContent = 'Scheduling...';
-                submitBtn.disabled = true;
-                
-                setTimeout(() => {
-                    alert('Thank you! We\'ve received your information and will contact you within 24 hours to schedule your free consultation.');
-                    
-                    // Reset form
-                    this.reset();
-                    currentStep = 1;
-                    updateFormStep();
-                    
-                    submitBtn.textContent = 'Schedule Free Consultation';
-                    submitBtn.disabled = false;
-                }, 2000);
+
+                // Handle array fields for Basin
+                const services = Array.from(document.querySelectorAll('input[name="services"]:checked')).map(cb => cb.value);
+                const platforms = Array.from(document.querySelectorAll('input[name="platforms"]:checked')).map(cb => cb.value);
+
+                // Remove individual checkbox entries and add as comma-separated strings
+                formData.delete('services');
+                formData.delete('platforms');
+                formData.append('services', services.join(', '));
+                formData.append('platforms', platforms.join(', ') || 'None selected');
+
+                // Submit to Basin
+                const response = await fetch(this.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    // Show success animation
+                    document.getElementById('multi-step-form').style.display = 'none';
+                    document.getElementById('success-animation').classList.add('show');
+                    showToast('Consultation scheduled successfully!');
+                } else {
+                    throw new Error('Submission failed');
+                }
+            } catch (error) {
+                showToast('Something went wrong. Please try again.', 'error');
+                console.error('Form submission error:', error);
+            } finally {
+                submitBtn.disabled = false;
+                spinner.classList.remove('show');
+                btnText.textContent = 'Schedule Free Consultation';
+                btnIcon.style.display = 'block';
             }
         });
+
+        function resetForm() {
+            document.getElementById('multi-step-form').reset();
+            document.getElementById('multi-step-form').style.display = 'block';
+            document.getElementById('success-animation').classList.remove('show');
+
+            // Reset all selections
+            document.querySelectorAll('.service-card').forEach(card => card.classList.remove('selected'));
+            document.querySelectorAll('.method-card').forEach(card => card.classList.remove('selected'));
+            document.querySelectorAll('.platform-checkbox').forEach(cb => cb.classList.remove('selected'));
+
+            currentStep = 1;
+            updateFormStep();
+        }
+
+        // Toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toast-message');
+
+            toastMessage.textContent = message;
+            toast.className = 'toast show' + (type === 'error' ? ' error' : '');
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 4000);
+        }
 
         // Live Chat Widget
         const chatButton = document.getElementById('chat-button');
@@ -970,48 +440,72 @@
 
         chatButton.addEventListener('click', () => {
             chatPanel.classList.add('active');
+            chatButton.classList.remove('pulse');
+            setTimeout(() => chatInput.focus(), 300);
         });
 
-        closeChat.addEventListener('click', () => {
+        closeChat.addEventListener('click', closeChatPanel);
+
+        function closeChatPanel() {
             chatPanel.classList.remove('active');
-        });
+        }
 
         function addMessage(message, isUser = false) {
             const messageEl = document.createElement('div');
             messageEl.className = `message ${isUser ? 'user' : 'bot'}`;
-            
+
             const contentEl = document.createElement('div');
             contentEl.className = 'message-content';
-            contentEl.textContent = message;
-            
+            contentEl.innerHTML = message;
+
             messageEl.appendChild(contentEl);
             chatMessages.appendChild(messageEl);
-            
-            // Scroll to bottom
             chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function showTypingIndicator() {
+            const typingEl = document.createElement('div');
+            typingEl.className = 'message bot';
+            typingEl.id = 'typing-indicator';
+            typingEl.innerHTML = `
+                <div class="typing-indicator">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            `;
+            chatMessages.appendChild(typingEl);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function removeTypingIndicator() {
+            const typingEl = document.getElementById('typing-indicator');
+            if (typingEl) typingEl.remove();
         }
 
         function handleChatInput() {
             const message = chatInput.value.trim();
             if (!message) return;
-            
-            // Add user message
+
             addMessage(message, true);
             chatInput.value = '';
-            
-            // Simulate bot response
+
+            showTypingIndicator();
+
             setTimeout(() => {
+                removeTypingIndicator();
+
                 const responses = [
-                    "Thanks for your question! Let me connect you with one of our social media experts.",
-                    "Great question! Our team can provide detailed insights on that during your free consultation.",
-                    "I'd be happy to help you with that. Can you tell me more about your business goals?",
-                    "That's exactly what we specialize in! Let me get someone from our team to assist you.",
-                    "Perfect! We have several case studies related to that. Would you like to see them?"
+                    "Thanks for your question! Let me connect you with one of our social media experts. They'll be with you shortly! 🚀",
+                    "Great question! Our team can provide detailed insights on that during your free consultation. Would you like to <a href='#contact-form' onclick='closeChatPanel()' style='color: var(--sage-green); text-decoration: underline;'>schedule one now</a>?",
+                    "I'd be happy to help you with that. Can you tell me more about your business goals? This will help us provide better recommendations! 💡",
+                    "That's exactly what we specialize in! We have several case studies related to that. Would you like to see them? 📊",
+                    "Perfect! We can definitely help with that. Our clients typically see 3-5x ROI within the first 6 months. Want to learn more? 💪"
                 ];
-                
+
                 const randomResponse = responses[Math.floor(Math.random() * responses.length)];
                 addMessage(randomResponse);
-            }, 1000);
+            }, 1500 + Math.random() * 1000);
         }
 
         sendMessage.addEventListener('click', handleChatInput);
@@ -1021,14 +515,21 @@
             }
         });
 
-        // Quick responses for common questions
-        const quickResponses = {
-            'pricing': 'We offer customized pricing based on your needs. Our services start from $800/month. Would you like to schedule a free consultation to discuss your specific requirements?',
-            'services': 'We offer social media management, content creation, paid advertising, and strategy consulting. Which service are you most interested in?',
-            'consultation': 'Great! Our free consultations typically last 30-45 minutes. We\'ll analyze your current social media presence and provide actionable recommendations. When would you prefer to schedule?',
-            'results': 'Our clients typically see 3-5x ROI within the first 6 months. We have case studies showing specific results for businesses similar to yours.',
-            'start': 'We can usually start within 1-2 weeks of your consultation. The timeline depends on your specific needs and goals.'
-        };
+        // FAQ Accordion
+        function toggleFaq(button) {
+            const answer = button.nextElementSibling;
+            const isActive = button.classList.contains('active');
+
+            // Close all FAQs
+            document.querySelectorAll('.faq-question').forEach(q => q.classList.remove('active'));
+            document.querySelectorAll('.faq-answer').forEach(a => a.classList.remove('active'));
+
+            // Open clicked if it was closed
+            if (!isActive) {
+                button.classList.add('active');
+                answer.classList.add('active');
+            }
+        }
 
         // Initialize scroll animations
         document.addEventListener('DOMContentLoaded', function() {
@@ -1048,9 +549,14 @@
             document.querySelectorAll('.reveal').forEach(el => {
                 observer.observe(el);
             });
+
+            // Set minimum date for datetime-local to today
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            document.getElementById('preferred-time').min = now.toISOString().slice(0, 16);
         });
 
-        console.log('Contact page initialized successfully! 📞');
+        console.log('🚀 SocialTush Contact Page Loaded Successfully!');
     </script>
     <script src="main.js"></script>
 </body>
