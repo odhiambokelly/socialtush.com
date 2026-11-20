@@ -16,9 +16,9 @@ const SUPPORT = Deno.env.get('SUPPORT_EMAIL') ?? 'support@socialtush.com';
 const FROM = Deno.env.get('FROM_EMAIL') ?? 'noreply@socialtush.com';
 const HTSEND_KEY = Deno.env.get('HTSEND_API_KEY') ?? '';
 const SITE = 'https://socialtush.com';
-const LOGO = 'https://raw.githubusercontent.com/odhiambokelly/socialtush.com/main/assets/images/400_640c7883f383c.png';
+const LOGO = 'https://socialtush.com/assets/images/400_640c7883f383c.png';
 const ORIGINS = (Deno.env.get('ALLOWED_ORIGINS') ??
-  'https://socialtush.com,https://www.socialtush.com,https://odhiambokelly.github.io,http://localhost:8765')
+  'https://socialtush.com,https://www.socialtush.com,http://localhost:8765')
   .split(',').map((s) => s.trim()).filter(Boolean);
 
 const SERVICES = [

@@ -41,7 +41,7 @@ Optional secrets (defaults shown):
 |---|---|
 | `SUPPORT_EMAIL` | `support@socialtush.com` |
 | `FROM_EMAIL` | `noreply@socialtush.com` (must be on your verified HTsend domain) |
-| `ALLOWED_ORIGINS` | `https://socialtush.com,https://www.socialtush.com,https://odhiambokelly.github.io,http://localhost:8765` |
+| `ALLOWED_ORIGINS` | `https://socialtush.com,https://www.socialtush.com,http://localhost:8765` |
 
 ## Step 3: Create the Edge Function (3 minutes)
 

@@ -93,7 +93,7 @@ With custom SMTP, Supabase allows 30 emails per hour by default. Raise it under
 
 Each email has the SocialTush logo header, the greeting with the person's name, the button, a
 "What SocialTush offers" section and your contact footer. The logo is loaded from
-`https://raw.githubusercontent.com/odhiambokelly/socialtush.com/main/assets/images/400_640c7883f383c.png`, so
+`https://socialtush.com/assets/images/400_640c7883f383c.png`, so
 GitHub Pages must be on for it to show.
 
 ## 6. Test it
