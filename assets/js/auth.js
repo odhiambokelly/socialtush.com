@@ -293,6 +293,30 @@
           $('[data-verified]').textContent = user.email_confirmed_at ? 'Confirmed ' + fmt(user.email_confirmed_at) : 'Not confirmed';
           $('[data-since]').textContent = fmt(user.created_at);
           wait.classList.add('st-hidden'); box.classList.remove('st-hidden');
+          // the customer's orders, bookings and messages (only their own rows, enforced by Supabase RLS)
+          sb.from('inquiries').select('ref,kind,service,status,created_at,booking_date,booking_time')
+            .order('created_at', { ascending: false }).limit(20).then(function (q) {
+              if (q.error) return; // table not set up yet
+              var wrap = document.createElement('div');
+              var h = document.createElement('h3'); h.textContent = 'My requests'; h.style.cssText = 'font-size:1.05rem;margin:0 0 .6rem';
+              wrap.appendChild(h);
+              var ul = document.createElement('ul'); ul.className = 'st-profile';
+              var LBL = { order: 'Order', booking: 'Booking', contact: 'Message', affiliate: 'Affiliate' };
+              if (!q.data.length) {
+                var li0 = document.createElement('li'); li0.innerHTML = '<span>No requests yet.</span><span><a href="order.html">Start an order</a></span>'; ul.appendChild(li0);
+              }
+              q.data.forEach(function (r) {
+                var li = document.createElement('li'), a = document.createElement('span'), b = document.createElement('span');
+                a.textContent = r.ref + ' · ' + (LBL[r.kind] || r.kind) + (r.service ? ' · ' + r.service : '') +
+                  (r.booking_date ? ' · ' + r.booking_date + ' ' + (r.booking_time || '') : '') + ' · ' + fmt(r.created_at);
+                a.style.fontWeight = '400';
+                b.textContent = r.status.replace('_', ' ');
+                b.style.textTransform = 'capitalize';
+                li.appendChild(a); li.appendChild(b); ul.appendChild(li);
+              });
+              wrap.appendChild(ul);
+              box.insertBefore(wrap, box.querySelector('.st-links'));
+            });
         });
       });
       $('#st-logout').addEventListener('click', function () {
