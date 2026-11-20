@@ -176,6 +176,7 @@
           if (r.data.session) { location.href = url('account.html'); return; } // only if email confirmation is turned off
           form.classList.add('st-hidden');
           root.querySelector('.st-sub').classList.add('st-hidden');
+          root.querySelector('h2').classList.add('st-hidden'); // "Create your account"
           var done = $('#st-done'); done.classList.remove('st-hidden');
           done.querySelector('[data-email]').textContent = cleanEmail;
           wireResend($('#st-resend'), function () { return cleanEmail; });
