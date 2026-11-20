@@ -40,10 +40,10 @@ The user icon in the header now opens **Log in** (or **My account** when logged 
 
 **Authentication → URL Configuration**
 
-- **Site URL**: `https://www.socialtush.com` (or `https://odhiambokelly.github.io/socialtush.com` until the domain points to GitHub Pages)
+- **Site URL**: `https://socialtush.com`
 - **Redirect URLs**, add all of:
+  - `https://socialtush.com/**`
   - `https://www.socialtush.com/**`
-  - `https://odhiambokelly.github.io/socialtush.com/**`
 
 ## 3. Sign-up rules
 
@@ -93,7 +93,7 @@ With custom SMTP, Supabase allows 30 emails per hour by default. Raise it under
 
 Each email has the SocialTush logo header, the greeting with the person's name, the button, a
 "What SocialTush offers" section and your contact footer. The logo is loaded from
-`https://odhiambokelly.github.io/socialtush.com/assets/images/400_640c7883f383c.png`, so
+`https://raw.githubusercontent.com/odhiambokelly/socialtush.com/main/assets/images/400_640c7883f383c.png`, so
 GitHub Pages must be on for it to show.
 
 ## 6. Test it

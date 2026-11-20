@@ -41,7 +41,7 @@ Optional secrets (defaults shown):
 |---|---|
 | `SUPPORT_EMAIL` | `support@socialtush.com` |
 | `FROM_EMAIL` | `noreply@socialtush.com` (must be on your verified HTsend domain) |
-| `ALLOWED_ORIGINS` | `https://odhiambokelly.github.io,https://www.socialtush.com,https://socialtush.com,http://localhost:8765` |
+| `ALLOWED_ORIGINS` | `https://socialtush.com,https://www.socialtush.com,https://odhiambokelly.github.io,http://localhost:8765` |
 
 ## Step 3: Create the Edge Function (3 minutes)
 
@@ -57,7 +57,7 @@ Optional secrets (defaults shown):
 
 ## Step 4: Test
 
-1. Open <https://odhiambokelly.github.io/socialtush.com/contact-us.html> and send a test message.
+1. Open <https://socialtush.com/contact-us.html> and send a test message.
 2. You should see "Message sent!" with a reference number.
 3. Check **support@socialtush.com** for the request, and the address you typed for the confirmation.
 4. In Supabase → **Table Editor** → **inquiries**, the request appears as a new row.
