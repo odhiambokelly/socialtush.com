@@ -8,6 +8,6 @@
  * See AUTH-SETUP.md for the full setup, including your own SMTP and the email templates.
  */
 window.SOCIALTUSH_AUTH = {
-  supabaseUrl: '',      // e.g. 'https://abcdefghijklmnop.supabase.co'
-  supabaseAnonKey: ''   // e.g. 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+  supabaseUrl: 'https://uqkwygjmhpegfwaxejut.supabase.co',      // e.g. 'https://abcdefghijklmnop.supabase.co'
+  supabaseAnonKey: 'sb_publishable_QN28d3adIiM23rMtf_Gsfw_JuovjB75'   // publishable (public) key: safe in browser code
 };
