@@ -150,51 +150,81 @@ function parseIpapi(json) {
   };
 }
 
-// ---------- verdict ----------
-function vote(results) {               // results: array of true | false | null
-  const known = results.filter((x) => x === true || x === false);
-  if (!known.length) return 'unknown';
-  const t = known.filter((x) => x === true).length;
-  if (t === 0) return 'clear';
-  return t === known.length ? 'detected' : 'disagree';
+/** blackbox.ipinfo.app: body is "Y" (VPN / proxy / hosting), "N" (not flagged) or "E" (error). */
+function parseBlackbox(text) {
+  const s = String(text == null ? '' : text).trim().toUpperCase();
+  if (s === 'Y') return { ok: true, flagged: true };
+  if (s === 'N') return { ok: true, flagged: false };
+  return { ok: false, error: s ? 'Provider returned "' + s.slice(0, 20) + '"' : 'No response' };
 }
 
-/**
- * pc: parseProxycheck result, ia: parseIpapi result, torListed: true/false/null (null = list unavailable).
- * Returns { status: 'clean'|'vpn'|'proxy'|'tor'|'inconclusive', color, label, reasons[] }.
- * Never returns 'clean' unless at least one VPN/proxy source answered and none disagreed.
- */
-function combine(pc, ia, torListed) {
-  const pcOk = pc && pc.ok, f = ia && ia.ok ? ia.flags : null;
-  const tor = torListed === true ? 'detected' : vote([pcOk ? pc.tor : null, f ? f.tor : null, torListed === false ? false : null]);
-  const vpn = vote([pcOk ? pc.vpn : null, f ? f.vpn : null]);
-  const proxy = vote([pcOk ? pc.proxy : null, f ? f.proxy : null]);
-  const reasons = [];
-  const src = [];
-  if (torListed === true) src.push('listed in the Tor Project\'s current exit node list');
-  if (pcOk && pc.anyProxy) src.push('proxycheck.io classifies it as ' + pc.type + (pc.operator ? ' (' + pc.operator + ')' : ''));
-  if (f && (f.vpn || f.proxy || f.tor)) src.push('ipapi.is flags it as ' + [f.vpn && 'VPN', f.proxy && 'proxy', f.tor && 'Tor'].filter(Boolean).join(', '));
+/** Tor Project Onionoo details (?search=IP&fields=or_addresses,exit_addresses,flags,running). */
+function parseOnionoo(json, ip) {
+  if (!json || !Array.isArray(json.relays)) return { ok: false, error: 'No response' };
+  // or_addresses look like "1.2.3.4:9001" or "[2001:db8::1]:9001"
+  const host = (a) => { a = String(a); return a.startsWith('[') ? a.slice(1, a.indexOf(']')) : a.split(':')[0]; };
+  const tor = json.relays.some((r) => r.running !== false && (
+    (Array.isArray(r.exit_addresses) && r.exit_addresses.indexOf(ip) !== -1) ||
+    (Array.isArray(r.flags) && r.flags.indexOf('Exit') !== -1 && Array.isArray(r.or_addresses) && r.or_addresses.some((a) => host(a) === ip))));
+  return { ok: true, tor };
+}
 
-  const out = (status, color, label) => ({ status, color, label, reasons, checks: { vpn, proxy, tor } });
-  if (tor === 'detected') { reasons.push(...src); return out('tor', 'red', 'TOR DETECTED'); }
-  if (vpn === 'detected') { reasons.push(...src); return out('vpn', 'red', 'VPN DETECTED'); }
-  if (proxy === 'detected') { reasons.push(...src); return out('proxy', 'red', 'PROXY DETECTED'); }
-  if (tor === 'disagree' || vpn === 'disagree' || proxy === 'disagree') {
-    reasons.push('The detection providers disagree about this address.');
-    if (src.length) reasons.push('Positive: ' + src.join('; ') + '.');
-    if (pcOk && !pc.anyProxy) reasons.push('Negative: proxycheck.io found no VPN, proxy or Tor.');
-    if (f && !f.vpn && !f.proxy && !f.tor) reasons.push('Negative: ipapi.is found no VPN, proxy or Tor.');
-    return out('inconclusive', 'yellow', 'DETECTION INCONCLUSIVE');
+// ---------- verdict ----------
+/**
+ * Always answers VPN or NO VPN when any detection source responded:
+ *   - any positive from any source => red (TOR / VPN / PROXY / VPN-OR-PROXY DETECTED), naming the source
+ *   - otherwise, if a VPN/proxy source answered => green NO VPN DETECTED
+ *   - only if every VPN/proxy source failed => 'failed' (no verdict is invented; the page retries)
+ * pc: proxycheck.io, ia: ipapi.is, torListed: Tor bulk exit list (true/false/null),
+ * extra.bb: blackbox.ipinfo.app (used only when proxycheck.io and keyed ipapi.is gave no answer),
+ * extra.onion: Tor Project Onionoo.
+ */
+function combine(pc, ia, torListed, extra = {}) {
+  const pcOk = !!(pc && pc.ok);
+  const f = ia && ia.ok ? ia.flags : null;
+  const bb = extra.bb && extra.bb.ok ? extra.bb : null;
+  const on = extra.onion && extra.onion.ok ? extra.onion : null;
+  const bbUsed = !pcOk && !f && !!bb;
+  const hit = { tor: [], vpn: [], proxy: [], any: [] };
+  if (torListed === true) hit.tor.push('listed in the Tor Project\'s current exit node list');
+  if (on && on.tor) hit.tor.push('listed as a running Tor exit relay by the Tor Project');
+  if (pcOk && pc.tor) hit.tor.push('proxycheck.io classifies it as Tor');
+  if (f && f.tor) hit.tor.push('ipapi.is flags it as Tor');
+  if (pcOk && pc.vpn) hit.vpn.push('proxycheck.io classifies it as a VPN' + (pc.operator ? ' (' + pc.operator + ')' : ''));
+  if (f && f.vpn) hit.vpn.push('ipapi.is flags it as a VPN');
+  if (pcOk && pc.proxy) hit.proxy.push('proxycheck.io classifies it as a ' + pc.type + ' proxy');
+  if (f && f.proxy) hit.proxy.push('ipapi.is flags it as a proxy');
+  if (bbUsed && bb.flagged) hit.any.push('blackbox.ipinfo.app flags it as a VPN, proxy or data-centre address');
+
+  const neg = [];
+  if (pcOk && !pc.anyProxy) neg.push('proxycheck.io found no VPN, proxy or Tor' + (pc.connectionType ? ' (connection type: ' + pc.connectionType + ')' : ''));
+  if (f && !f.vpn && !f.proxy && !f.tor) neg.push('ipapi.is found no VPN, proxy or Tor');
+  if (bbUsed && !bb.flagged) neg.push('blackbox.ipinfo.app found no VPN, proxy or data-centre use');
+  if (torListed === false) neg.push('not in the Tor Project\'s current exit node list');
+  if (on && !on.tor && torListed !== false) neg.push('not a running Tor exit relay (Tor Project)');
+
+  const vpnAnswered = pcOk || !!f || bbUsed;
+  const torAnswered = torListed !== null || !!on || pcOk || !!f;
+  const checks = {
+    vpn: hit.vpn.length || hit.any.length ? 'detected' : vpnAnswered ? 'clear' : 'unknown',
+    proxy: hit.proxy.length || hit.any.length ? 'detected' : vpnAnswered ? 'clear' : 'unknown',
+    tor: hit.tor.length ? 'detected' : torAnswered ? 'clear' : 'unknown',
+  };
+  const positives = [...hit.tor, ...hit.vpn, ...hit.proxy, ...hit.any];
+  const reasons = positives.map((s) => 'Detected: ' + s + '.');
+  if (positives.length && neg.length) reasons.push('Not detected by: ' + neg.join('; ') + '. One positive result is enough to flag the address.');
+  const out = (status, color, label) => ({ status, color, label, reasons, checks });
+
+  if (hit.tor.length) return out('tor', 'red', 'TOR DETECTED');
+  if (hit.vpn.length) return out('vpn', 'red', 'VPN DETECTED');
+  if (hit.proxy.length) return out('proxy', 'red', 'PROXY DETECTED');
+  if (hit.any.length) return out('vpn', 'red', 'VPN / PROXY DETECTED');
+  if (!vpnAnswered) {
+    reasons.push('None of our VPN detection services responded, so no result was produced. Please try again in a moment.');
+    return out('failed', 'yellow', 'CHECK FAILED – TRY AGAIN');
   }
-  if (vpn === 'unknown' || proxy === 'unknown') {
-    reasons.push('VPN and proxy detection is temporarily unavailable, so we cannot say whether this address uses a VPN.');
-    if (tor === 'clear' && torListed === false) reasons.push('It is not in the Tor Project\'s current exit node list.');
-    return out('inconclusive', 'yellow', 'DETECTION INCONCLUSIVE');
-  }
-  if (pcOk) reasons.push('proxycheck.io found no VPN, proxy or Tor' + (pc.connectionType ? ' (connection type: ' + pc.connectionType + ')' : '') + '.');
-  if (f) reasons.push('ipapi.is found no VPN, proxy or Tor.');
-  if (torListed === false) reasons.push('Not in the Tor Project\'s current exit node list.');
-  else if (torListed === null) reasons.push('The Tor exit list could not be loaded; Tor status is based on proxycheck.io only.');
+  neg.forEach((s) => reasons.push(s.charAt(0).toUpperCase() + s.slice(1) + '.'));
+  if (!torAnswered) reasons.push('Tor status could not be confirmed because the Tor lists were unavailable.');
   return out('clean', 'green', 'NO VPN DETECTED');
 }
 
@@ -266,6 +296,17 @@ async function getJson(url: string, headers: Record<string, string> = {}) {
   } finally { clearTimeout(t); }
 }
 
+async function getText(url: string) {
+  const ctl = new AbortController();
+  const t = setTimeout(() => ctl.abort(), TIMEOUT_MS);
+  try {
+    const r = await fetch(url, { signal: ctl.signal });
+    return { status: r.status, body: (await r.text()).slice(0, 200) };
+  } catch (e) {
+    return { status: 0, body: '', error: e instanceof Error && e.name === 'AbortError' ? 'timeout' : 'network error' };
+  } finally { clearTimeout(t); }
+}
+
 // ---- Tor exit list (cached) ----
 let torSet: Set<string> | null = null;
 let torLoadedAt = 0;
@@ -322,10 +363,14 @@ function callerIp(req: Request): string {
 async function lookup(ip: string) {
   const pcUrl = `https://proxycheck.io/v2/${encodeURIComponent(ip)}?vpn=1&asn=1${PROXYCHECK_KEY ? '&key=' + encodeURIComponent(PROXYCHECK_KEY) : ''}`;
   const iaUrl = `https://api.ipapi.is/?q=${encodeURIComponent(ip)}${IPAPI_KEY ? '&key=' + encodeURIComponent(IPAPI_KEY) : ''}`;
-  const [pcRes, iaRes, tor] = await Promise.all([getJson(pcUrl), getJson(iaUrl), torListed(ip)]);
+  const bbUrl = `https://blackbox.ipinfo.app/lookup/${encodeURIComponent(ip)}`;
+  const onUrl = `https://onionoo.torproject.org/details?search=${encodeURIComponent(ip)}&fields=or_addresses,exit_addresses,flags,running&limit=20`;
+  const [pcRes, iaRes, tor, bbRes, onRes] = await Promise.all([getJson(pcUrl), getJson(iaUrl), torListed(ip), getText(bbUrl), getJson(onUrl)]);
   const pc: any = pcRes.status === 200 ? parseProxycheck(pcRes.body, ip) : { ok: false, error: pcRes.error ?? 'HTTP ' + pcRes.status };
   const ia: any = iaRes.status === 200 ? parseIpapi(iaRes.body) : { ok: false, error: iaRes.error ?? 'HTTP ' + iaRes.status };
-  const verdict = combine(pc, ia, tor);
+  const bb: any = bbRes.status === 200 ? parseBlackbox(bbRes.body) : { ok: false, error: bbRes.error ?? 'HTTP ' + bbRes.status };
+  const onion: any = onRes.status === 200 ? parseOnionoo(onRes.body, ip) : { ok: false, error: onRes.error ?? 'HTTP ' + onRes.status };
+  const verdict = combine(pc, ia, tor, { bb, onion });
   return {
     ok: true,
     ip,
@@ -341,6 +386,10 @@ async function lookup(ip: string) {
       { name: 'ipapi.is', role: IPAPI_KEY ? 'VPN/proxy/Tor second opinion and location' : 'Location and ISP fallback (VPN flags need an API key)',
         status: ia.ok ? 'ok' : 'unavailable', error: ia.ok ? undefined : ia.error,
         result: ia.ok ? { flags: ia.flags ?? 'not included without API key', isp: ia.isp } : undefined },
+      { name: 'Tor Project Onionoo', role: 'Running Tor exit relays (IPv4 and IPv6)', status: onion.ok ? 'ok' : 'unavailable',
+        result: onion.ok ? { tor_exit: onion.tor } : undefined },
+      { name: 'blackbox.ipinfo.app', role: pc.ok ? 'Backup VPN/proxy check (not needed: proxycheck.io answered)' : 'Backup VPN/proxy check (used because proxycheck.io was unavailable)',
+        status: bb.ok ? 'ok' : 'unavailable', result: bb.ok ? { flagged: bb.flagged } : undefined },
     ],
   };
 }

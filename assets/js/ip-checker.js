@@ -1,7 +1,7 @@
 /* SocialTush IP checker page. Talks to the ip-check Supabase Edge Function (server-side API calls).
  * If that service is unreachable, it falls back to ipapi.is (browser-safe, location only) and
  * shows the VPN status as INCONCLUSIVE, never as "no VPN". */
-import { validatePublicIp, normalizeIp, ipVersion, parseIpapi } from './ipcheck-core.js?v=1';
+import { validatePublicIp, normalizeIp, ipVersion, parseIpapi, parseBlackbox, parseOnionoo, combine } from './ipcheck-core.js?v=2';
 
 const cfg = window.SOCIALTUSH_AUTH || {};
 const ENDPOINT = (cfg.supabaseUrl || '').replace(/\/$/, '') + '/functions/v1/ip-check';
@@ -9,7 +9,7 @@ const TIMEOUT_MS = 15000;
 const $ = (s, el = document) => el.querySelector(s);
 
 const ICON = { green: '✓', red: '✕', yellow: '!' };
-const CHECK_TEXT = { detected: 'Detected', clear: 'Not detected', disagree: 'Providers disagree', unknown: 'Unknown' };
+const CHECK_TEXT = { detected: 'Detected', clear: 'Not detected', disagree: 'Detected', unknown: 'Not checked' };
 const CHECK_COLOR = { detected: 'red', clear: 'green', disagree: 'yellow', unknown: 'yellow' };
 
 function el(tag, attrs = {}, ...kids) {
@@ -42,20 +42,45 @@ async function check(ip) {
     if (r.status === 200 && r.body && r.body.ok) return r.body;
     if ((r.status === 400 || r.status === 429 || r.status === 403) && r.body && r.body.error) return { ok: false, error: r.body.error };
   }
-  // Fallback: real public IP / location from ipapi.is, but no VPN verdict.
+  // Fallback (server unavailable): browser-safe public APIs that allow cross-origin requests.
+  //   ipapi.is -> your public IP, ISP, location; blackbox.ipinfo.app -> VPN/proxy; Onionoo -> Tor exit relays.
   const fb = await fetchJson('https://api.ipapi.is/' + (ip ? '?q=' + encodeURIComponent(ip) : ''));
   const ia = fb.status === 200 ? parseIpapi(fb.body) : { ok: false };
-  if (!ia.ok) return { ok: false, error: 'IP lookup services are temporarily unavailable. Please try again in a few minutes.' };
-  const theIp = normalizeIp(fb.body.ip);
+  const theIp = ia.ok ? normalizeIp(fb.body.ip) : ip;
+  if (!theIp) return { ok: false, error: 'We could not detect your IP address right now. Please try again in a moment.' };
+  const [bbRes, onRes] = await Promise.all([
+    fetchText('https://blackbox.ipinfo.app/lookup/' + encodeURIComponent(theIp)),
+    fetchJson('https://onionoo.torproject.org/details?search=' + encodeURIComponent(theIp) + '&fields=or_addresses,exit_addresses,flags,running&limit=20'),
+  ]);
+  const bb = bbRes.status === 200 ? parseBlackbox(bbRes.body) : { ok: false };
+  const onion = onRes.status === 200 ? parseOnionoo(onRes.body, theIp) : { ok: false };
+  const verdict = combine({ ok: false }, ia, null, { bb, onion });
   return {
     ok: true, fallback: true, ip: theIp, version: ipVersion(theIp) === 6 ? 'IPv6' : 'IPv4', checked_at: new Date().toISOString(),
-    verdict: { status: 'inconclusive', color: 'yellow', label: 'DETECTION INCONCLUSIVE',
-      reasons: ['Our VPN detection service is unavailable right now, so we cannot say whether this address uses a VPN, proxy or Tor. The location below comes from ipapi.is.'],
-      checks: { vpn: 'unknown', proxy: 'unknown', tor: 'unknown' } },
-    details: { isp: ia.isp, asn: ia.asn, country: ia.country, countryCode: (ia.countryCode || '').toUpperCase() || null, region: ia.region, city: ia.city },
-    sources: [{ name: 'ipapi.is', role: 'Location and ISP only (browser fallback)', status: 'ok' }, { name: 'proxycheck.io', role: 'VPN, proxy, Tor', status: 'unavailable' }],
+    verdict,
+    details: ia.ok ? { isp: ia.isp, asn: ia.asn, country: ia.country, countryCode: (ia.countryCode || '').toUpperCase() || null, region: ia.region, city: ia.city } : {},
+    sources: [
+      { name: 'blackbox.ipinfo.app', role: 'VPN / proxy / data-centre detection', status: bb.ok ? 'ok' : 'unavailable' },
+      { name: 'Tor Project Onionoo', role: 'Running Tor exit relays', status: onion.ok ? 'ok' : 'unavailable' },
+      { name: 'ipapi.is', role: 'IP address, ISP and location', status: ia.ok ? 'ok' : 'unavailable' },
+    ],
     is_you: !ip,
   };
+}
+
+async function fetchText(url) {
+  const ctl = new AbortController();
+  const t = setTimeout(() => ctl.abort(), TIMEOUT_MS);
+  try { const r = await fetch(url, { signal: ctl.signal }); return { status: r.status, body: await r.text() }; }
+  catch { return { status: 0, body: '' }; }
+  finally { clearTimeout(t); }
+}
+
+/** Retry once if no detection source answered, so visitors get a real VPN / NO VPN result. */
+async function checkWithRetry(ip) {
+  let d = await check(ip);
+  if (d.ok && d.verdict.status === 'failed') { await new Promise((r) => setTimeout(r, 2500)); d = await check(ip); }
+  return d;
 }
 
 function flag(cc, country) {
@@ -102,11 +127,11 @@ function loading(text) { return el('div', { class: 'ipc-loading', role: 'status'
 // ---------- page ----------
 const mine = $('#ipc-mine'), form = $('#ipc-form'), input = $('#ipc-input'), err = $('#ipc-err'), out = $('#ipc-results'), btn = $('#ipc-btn');
 const cacheGet = (ip) => { try { const c = JSON.parse(sessionStorage.getItem('ipc:' + ip) || 'null'); return c && Date.now() - c.t < 600e3 ? c.d : null; } catch { return null; } };
-const cachePut = (ip, d) => { try { if (!d.fallback) sessionStorage.setItem('ipc:' + ip, JSON.stringify({ t: Date.now(), d })); } catch { /* ignore */ } };
+const cachePut = (ip, d) => { try { if (!d.fallback && d.verdict.status !== 'failed') sessionStorage.setItem('ipc:' + ip, JSON.stringify({ t: Date.now(), d })); } catch { /* ignore */ } };
 
 (async () => {
   mine.replaceChildren(loading('Detecting your public IP address…'));
-  const data = await check('');
+  const data = await checkWithRetry('');
   mine.replaceChildren(data.ok ? render(data, { you: true }) : errorCard(data.error));
   if (data.ok) input.placeholder = 'e.g. ' + (data.version === 'IPv6' ? '2001:4860:4860::8888' : '8.8.8.8');
 })();
@@ -120,7 +145,7 @@ form.addEventListener('submit', async (e) => {
   btn.disabled = true; const label = btn.textContent; btn.textContent = 'Checking…';
   const slot = loading('Checking ' + ip + '…');
   out.prepend(slot);
-  const data = cacheGet(ip) || await check(ip);
+  const data = cacheGet(ip) || await checkWithRetry(ip);
   if (data.ok) cachePut(ip, data);
   slot.replaceWith(data.ok ? render(data) : errorCard(data.error));
   btn.disabled = false; btn.textContent = label;

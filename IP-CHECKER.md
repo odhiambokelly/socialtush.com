@@ -7,9 +7,9 @@ Page: **https://socialtush.com/ip-checker** (linked from the header and footer o
 | Part | Status |
 |---|---|
 | Page, SEO content, header/footer links, sitemap | ✅ Live |
-| Automatic public IP detection | ✅ Works now (via the browser fallback until the function is deployed) |
+| Automatic public IP detection | ✅ Works now |
 | Manual IPv4 / IPv6 lookups, validation, loading states, multiple lookups | ✅ Works now |
-| **VPN / proxy / Tor detection** | ⏳ **Needs the `ip-check` Supabase Edge Function deployed** (see Setup). Until then every result shows 🟡 *Detection inconclusive*, never 🟢. |
+| **VPN / proxy / Tor detection** | ✅ Works now with browser sources (blackbox.ipinfo.app + Tor Project Onionoo). Becomes more precise (proxycheck.io + Tor exit list) once the `ip-check` function is deployed |
 
 ## How it works
 
@@ -32,11 +32,16 @@ with the VPN status **🟡 DETECTION INCONCLUSIVE**.
 
 ### Verdict rules (`combine()` in `assets/js/ipcheck-core.js`)
 
-- 🔴 **TOR DETECTED**: the IP is in the Tor Project exit list, or a provider reports Tor and none disagrees.
-- 🔴 **VPN DETECTED** / **PROXY DETECTED**: a provider reports it and no other provider disagrees.
-- 🟡 **DETECTION INCONCLUSIVE**: providers disagree, **or** no VPN/proxy source answered (timeout, error, quota).
-- 🟢 **NO VPN DETECTED**: only when at least one VPN/proxy source answered "no" and none said "yes".
-- An API failure can **never** produce 🟢.
+Every check ends in **VPN** or **NO VPN**:
+
+- 🔴 **TOR / VPN / PROXY DETECTED**: any trusted source reports it. One positive is enough; the result lists who detected it and who did not.
+- 🔴 **VPN / PROXY DETECTED**: from blackbox.ipinfo.app when it is the only VPN source answering. It cannot tell VPN, proxy and data-centre apart.
+- 🟢 **NO VPN DETECTED**: at least one VPN source answered and none reported VPN, proxy or Tor.
+- Only if **every** VPN source fails at the same moment, the page retries automatically. If that also fails, it says **"Check failed – try again"**. It never invents a result and never shows 🟢 without a real answer.
+
+Source priority:
+- **Function deployed:** proxycheck.io is the main source. The Tor exit list and Onionoo give Tor answers. blackbox is used only if proxycheck.io fails (it flags every data centre, so it would mark e.g. Google DNS).
+- **Browser fallback:** blackbox.ipinfo.app for VPN/proxy, Onionoo for Tor, ipapi.is for IP and location.
 
 ## APIs used
 
@@ -45,6 +50,8 @@ with the VPN status **🟡 DETECTION INCONCLUSIVE**.
 | **proxycheck.io v2** `GET https://proxycheck.io/v2/{ip}?vpn=1&asn=1` | VPN, proxy, Tor, connection type, operator, ISP, location | Optional (`PROXYCHECK_API_KEY`) | 100 lookups/day without a key; 1,000/day with a free account key | ✅ Tested (see below). No browser CORS, so server-side only |
 | **Tor Project bulk exit list** `GET https://check.torproject.org/torbulkexitlist` | Tor exit nodes (IPv4) | No | Free | ✅ Tested: 1,263 exits; no browser CORS, so server-side only |
 | **ipapi.is** `GET https://api.ipapi.is/?q={ip}` | ISP, ASN, location (fallback); visitor IP in browser fallback | Optional (`IPAPI_IS_KEY`) | Free tier | ✅ Tested without a key: returns `ip, is_bogon, company, asn, city, region, country, lat, lon, timezone`. **Without a key it does NOT return `is_vpn` / `is_proxy` / `is_tor`.** The code uses those flags as a second opinion when a key is set, but that path is **not yet tested** (no key). |
+| **blackbox.ipinfo.app** `GET https://blackbox.ipinfo.app/lookup/{ip}` | Backup VPN/proxy/data-centre check (body `Y`/`N`/`E`) | No | Free | ✅ Tested: browser-callable (CORS `*`); Mullvad VPN, open proxies and a Tor exit → `Y`; Comcast and Safaricom → `N`. **Limits:** flags all data centres (8.8.8.8 → `Y`) and missed the Zscaler VPN and the Tor exit 192.42.116.44 |
+| **Tor Project Onionoo** `GET https://onionoo.torproject.org/details?search={ip}` | Running Tor exit relays (IPv4 and IPv6) | No | Free | ✅ Tested: browser-callable; found 192.42.116.44 as a running Exit relay |
 
 Not used, after evaluation:
 - **IPinfo:** VPN/privacy detection is a paid plan only.
@@ -90,6 +97,12 @@ After editing `assets/js/ipcheck-core.js` or `supabase/functions/ip-check/server
 | 6 | proxycheck.io, invalid `999.1.1.1` | `status: error`, "No valid IP Addresses supplied." ✅ |
 | 7 | ipapi.is keyless, IPv4 + IPv6 + caller | Location/ISP returned; **no VPN flags without a key** ✅ (documented) |
 | 8 | CORS from https://socialtush.com | ipapi.is allows it; proxycheck.io and the Tor list do not (hence server-side) ✅ |
+
+### Re-test after switching to always VPN / NO VPN: 40/40 passed
+- **Server mode** (all sources): Mullvad VPN 🔴 VPN; both Tor exits 🔴 Tor; SOCKS5 and HTTP 🔴 Proxy; Zscaler 🔴 VPN; Comcast, Safaricom (2 IPs), Google IPv4 and IPv6 🟢.
+- **Browser fallback:** Mullvad, SOCKS5 and HTTP 🔴 VPN/Proxy; both Tor exits 🔴 Tor; Comcast and Safaricom 🟢. Known limits: Zscaler 🟢 (missed), Google DNS 🔴 (data centre).
+- All sources down → "Check failed" (never 🟢); positive beats negative; blackbox ignored when proxycheck.io answered.
+- **Live page:** your own IP → 🟢 NO VPN DETECTED; Mullvad → 🔴; Tor exit 192.42.116.44 → 🔴 TOR; Safaricom → 🟢.
 
 ### Decision logic in a browser, using the real responses above (62/62 passed)
 - Valid public IPv4/IPv6 (incl. `::ffff:8.8.8.8`), 12 invalid inputs, 16 private/reserved ranges (IPv4 + IPv6).

@@ -53,6 +53,17 @@ async function getJson(url: string, headers: Record<string, string> = {}) {
   } finally { clearTimeout(t); }
 }
 
+async function getText(url: string) {
+  const ctl = new AbortController();
+  const t = setTimeout(() => ctl.abort(), TIMEOUT_MS);
+  try {
+    const r = await fetch(url, { signal: ctl.signal });
+    return { status: r.status, body: (await r.text()).slice(0, 200) };
+  } catch (e) {
+    return { status: 0, body: '', error: e instanceof Error && e.name === 'AbortError' ? 'timeout' : 'network error' };
+  } finally { clearTimeout(t); }
+}
+
 // ---- Tor exit list (cached) ----
 let torSet: Set<string> | null = null;
 let torLoadedAt = 0;
@@ -109,10 +120,14 @@ function callerIp(req: Request): string {
 async function lookup(ip: string) {
   const pcUrl = `https://proxycheck.io/v2/${encodeURIComponent(ip)}?vpn=1&asn=1${PROXYCHECK_KEY ? '&key=' + encodeURIComponent(PROXYCHECK_KEY) : ''}`;
   const iaUrl = `https://api.ipapi.is/?q=${encodeURIComponent(ip)}${IPAPI_KEY ? '&key=' + encodeURIComponent(IPAPI_KEY) : ''}`;
-  const [pcRes, iaRes, tor] = await Promise.all([getJson(pcUrl), getJson(iaUrl), torListed(ip)]);
+  const bbUrl = `https://blackbox.ipinfo.app/lookup/${encodeURIComponent(ip)}`;
+  const onUrl = `https://onionoo.torproject.org/details?search=${encodeURIComponent(ip)}&fields=or_addresses,exit_addresses,flags,running&limit=20`;
+  const [pcRes, iaRes, tor, bbRes, onRes] = await Promise.all([getJson(pcUrl), getJson(iaUrl), torListed(ip), getText(bbUrl), getJson(onUrl)]);
   const pc: any = pcRes.status === 200 ? parseProxycheck(pcRes.body, ip) : { ok: false, error: pcRes.error ?? 'HTTP ' + pcRes.status };
   const ia: any = iaRes.status === 200 ? parseIpapi(iaRes.body) : { ok: false, error: iaRes.error ?? 'HTTP ' + iaRes.status };
-  const verdict = combine(pc, ia, tor);
+  const bb: any = bbRes.status === 200 ? parseBlackbox(bbRes.body) : { ok: false, error: bbRes.error ?? 'HTTP ' + bbRes.status };
+  const onion: any = onRes.status === 200 ? parseOnionoo(onRes.body, ip) : { ok: false, error: onRes.error ?? 'HTTP ' + onRes.status };
+  const verdict = combine(pc, ia, tor, { bb, onion });
   return {
     ok: true,
     ip,
@@ -128,6 +143,10 @@ async function lookup(ip: string) {
       { name: 'ipapi.is', role: IPAPI_KEY ? 'VPN/proxy/Tor second opinion and location' : 'Location and ISP fallback (VPN flags need an API key)',
         status: ia.ok ? 'ok' : 'unavailable', error: ia.ok ? undefined : ia.error,
         result: ia.ok ? { flags: ia.flags ?? 'not included without API key', isp: ia.isp } : undefined },
+      { name: 'Tor Project Onionoo', role: 'Running Tor exit relays (IPv4 and IPv6)', status: onion.ok ? 'ok' : 'unavailable',
+        result: onion.ok ? { tor_exit: onion.tor } : undefined },
+      { name: 'blackbox.ipinfo.app', role: pc.ok ? 'Backup VPN/proxy check (not needed: proxycheck.io answered)' : 'Backup VPN/proxy check (used because proxycheck.io was unavailable)',
+        status: bb.ok ? 'ok' : 'unavailable', result: bb.ok ? { flagged: bb.flagged } : undefined },
     ],
   };
 }
