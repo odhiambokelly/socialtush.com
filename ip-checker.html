@@ -23,7 +23,7 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@graph":[
 {"@type":"WebApplication","name":"SocialTush IP Address Checker & VPN Detection Tool","url":"https://socialtush.com/ip-checker","applicationCategory":"UtilitiesApplication","operatingSystem":"Any (web browser)","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Free tool to check your public IP address and detect whether an IP address uses a VPN, proxy or Tor.","publisher":{"@type":"Organization","name":"SocialTush","url":"https://socialtush.com/"}},
 {"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://socialtush.com/"},{"@type":"ListItem","position":2,"name":"IP Checker","item":"https://socialtush.com/ip-checker"}]},
-{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is my IP address using a VPN?","acceptedAnswer":{"@type":"Answer","text":"Open this page and the tool checks your public IP automatically. A green result means no VPN, proxy or Tor was detected; red means one was detected; yellow means the result is inconclusive, for example when detection services are unavailable or disagree."}},{"@type":"Question","name":"How do I check if an IP address is a VPN?","acceptedAnswer":{"@type":"Answer","text":"Paste any public IPv4 or IPv6 address into the IP checker and press Check IP Address. The address is checked against proxycheck.io VPN and proxy data and the Tor Project exit node list, and the actual results are shown."}},{"@type":"Question","name":"Why does the location show a different city from where I am?","acceptedAnswer":{"@type":"Answer","text":"IP location is approximate. It usually shows where your internet provider registers or routes the address, which can be a nearby city or the provider's regional hub."}},{"@type":"Question","name":"What is the difference between a public and a private IP address?","acceptedAnswer":{"@type":"Answer","text":"A public IP address identifies your connection on the internet. Private addresses such as 192.168.x.x or 10.x.x.x are only used inside your home or office network and cannot be looked up online."}},{"@type":"Question","name":"Is this IP checker free?","acceptedAnswer":{"@type":"Answer","text":"Yes. The SocialTush IP address checker is free to use without signing up."}},{"@type":"Question","name":"Do you store the IP addresses I check?","acceptedAnswer":{"@type":"Answer","text":"No. Lookups are not saved to a database. Results are kept in temporary memory for up to 15 minutes to avoid repeated lookups, then discarded."}}]}]}</script>
+{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is my IP address using a VPN?","acceptedAnswer":{"@type":"Answer","text":"Open this page and the tool checks your public IP automatically. A green result means no VPN, proxy or Tor was detected; red means one was detected; if every detection service is temporarily unavailable, the tool asks you to try again instead of guessing."}},{"@type":"Question","name":"How do I check if an IP address is a VPN?","acceptedAnswer":{"@type":"Answer","text":"Paste any public IPv4 or IPv6 address into the IP checker and press Check IP Address. The address is checked against proxycheck.io VPN and proxy data and the Tor Project exit node list, and the actual results are shown."}},{"@type":"Question","name":"Why does the location show a different city from where I am?","acceptedAnswer":{"@type":"Answer","text":"IP location is approximate. It usually shows where your internet provider registers or routes the address, which can be a nearby city or the provider's regional hub."}},{"@type":"Question","name":"What is the difference between a public and a private IP address?","acceptedAnswer":{"@type":"Answer","text":"A public IP address identifies your connection on the internet. Private addresses such as 192.168.x.x or 10.x.x.x are only used inside your home or office network and cannot be looked up online."}},{"@type":"Question","name":"Is this IP checker free?","acceptedAnswer":{"@type":"Answer","text":"Yes. The SocialTush IP address checker is free to use without signing up."}},{"@type":"Question","name":"Do you store the IP addresses I check?","acceptedAnswer":{"@type":"Answer","text":"No. Lookups are not saved to a database. Results are kept in temporary memory for up to 15 minutes to avoid repeated lookups, then discarded."}}]}]}</script>
 <meta name="theme-color" content="#0b7f7c">
 <link rel="icon" href="assets/images/400_640c788b15514-aspect-ratio-1-1-width-48-format-png.png" type="image/png">
 <link rel="apple-touch-icon" sizes="180x180" href="assets/images/800_640c788b15514-aspect-ratio-1-1-width-180-format-png.png">
@@ -31,7 +31,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/home.css?v=1">
+<link rel="stylesheet" href="assets/css/home.css?v=2">
 <script>document.documentElement.classList.add('js');</script>
 </head>
 <body>
@@ -71,15 +71,24 @@
 </div></section>
 
 <section style="padding:40px 0 24px" aria-labelledby="mine-title"><div class="wrap">
-  <h2 id="mine-title" class="sr-only" style="position:absolute;left:-9999px">Your public IP address and VPN status</h2>
-  <div id="ipc-mine" aria-live="polite"><div class="ipc-loading" role="status"><span class="ipc-spin" aria-hidden="true"></span>Detecting your public IP address&hellip;</div></div>
-  <noscript><p class="ipc-card ipc-yellow">The IP checker needs JavaScript. Please enable it to see your IP address and VPN status.</p></noscript>
+  <h2 id="mine-title" style="position:absolute;left:-9999px">Your public IP address, VPN status and location</h2>
+  <div id="ipc-current" aria-live="polite"><div class="ipc-loading" role="status"><span class="ipc-spin" aria-hidden="true"></span>Detecting your public IP address&hellip;</div></div>
+  <div id="ipc-location" class="ipc-location" hidden>
+    <div id="ipc-loc-panel"></div>
+    <div class="ipc-map-col">
+      <div class="ipc-map-canvas" role="region" aria-label="Google satellite map of the approximate IP location"></div>
+      <p class="ipc-map-empty" hidden></p>
+      <p class="ipc-map-notice" role="note" hidden></p>
+    </div>
+  </div>
+  <div id="ipc-tech"></div>
+  <noscript><p class="ipc-card ipc-yellow">The IP checker needs JavaScript. Please enable it to see your IP address, VPN status and map.</p></noscript>
 </div></section>
 
 <section style="padding:24px 0 56px" aria-labelledby="lookup-title"><div class="wrap">
   <div class="f-card" style="box-shadow:none">
     <h2 id="lookup-title" style="font-size:1.4rem;margin-bottom:.3rem">Check any IP address</h2>
-    <p style="margin:0 0 1rem;color:var(--muted)">Paste a public IPv4 or IPv6 address to check whether it belongs to a VPN, proxy or Tor exit node.</p>
+    <p style="margin:0 0 1rem;color:var(--muted)">Paste a public IPv4 or IPv6 address to check whether it belongs to a VPN, proxy or Tor exit node and see its approximate location on the map above.</p>
     <form id="ipc-form" class="ipc-form" novalidate>
       <label for="ipc-input" style="position:absolute;left:-9999px">IPv4 or IPv6 address</label>
       <input id="ipc-input" name="ip" type="text" inputmode="text" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="45" placeholder="e.g. 8.8.8.8 or 2001:4860:4860::8888" aria-describedby="ipc-err">
@@ -90,10 +99,11 @@
     <ul class="ipc-legend" aria-label="What the colours mean">
       <li><span class="ipc-dot" style="background:#1a9d5b"></span>Green: no VPN, proxy or Tor detected</li>
       <li><span class="ipc-dot" style="background:#d0342c"></span>Red: VPN, proxy or Tor detected</li>
-      <li><span class="ipc-dot" style="background:#d9a400"></span>Yellow: detection inconclusive</li>
+      <li><span class="ipc-dot" style="background:#d9a400"></span>Yellow: check failed, please try again</li>
     </ul>
   </div>
-  <div id="ipc-results" class="ipc-wrap" style="margin-top:1.25rem" aria-live="polite"></div>
+  <div id="ipc-form-status" aria-live="polite" style="margin-top:1rem"></div>
+  <div id="ipc-history" hidden style="margin-top:2rem"><h2 style="font-size:1.25rem;margin:0 0 .8rem">Recent checks</h2><div id="ipc-results" class="ipc-wrap"></div></div>
 </div></section>
 
 <section class="alt"><div class="wrap prose">
@@ -104,7 +114,11 @@
     <li><strong>The Tor Project's exit node list</strong>: the official, regularly updated list of Tor exit relays.</li>
     <li><strong>ipapi.is</strong>: an independent source for ISP and location details, used when the main source is unavailable.</li>
   </ul>
-  <p>If a detection source does not respond, the tool shows <strong>Detection inconclusive</strong> rather than claiming the address is VPN-free.</p>
+  <p>Every check ends in a clear result: <strong>VPN detected</strong> or <strong>No VPN detected</strong>. If one source is unavailable, the tool uses the others; it never reports an address as VPN-free unless a detection source actually checked it.</p>
+
+  <h2>How the IP location map works</h2>
+  <p>The satellite map is centred on the latitude and longitude returned by the IP intelligence provider for the address. IP geolocation databases estimate where a network is used, usually to the level of a city or region, so the 📍 marker shows an <strong>approximate area</strong>, not a home or street address.</p>
+  <p>When two independent sources are available, we show how far apart their estimates are. A few kilometres means good agreement; hundreds of kilometres means the location is uncertain, which is common for mobile networks, VPNs and large cloud providers.</p>
 
   <h2>What is a public IP address?</h2>
   <p>Every device on the internet is reached through an IP address. Your <strong>public IP address</strong> is the one websites see. It is assigned by your internet provider and is usually shared by every device on your home or office network.</p>
@@ -117,7 +131,7 @@
   <h3>Hosting and data-centre networks</h3>
   <p>Most VPN and proxy servers live in data centres rather than homes. Knowing whether an address belongs to a residential, mobile, business or hosting network helps separate ordinary visitors from relayed traffic.</p>
   <h3>Why detection is never 100% certain</h3>
-  <p>New VPN servers appear every day, and some services route traffic through ordinary home connections. That is why we show which source reported what, and mark results as inconclusive when sources disagree.</p>
+  <p>New VPN servers appear every day, and some services route traffic through ordinary home connections. That is why we combine several independent sources, flag an address as soon as one trusted source detects a VPN, proxy or Tor, and show which source reported what.</p>
 
   <h2>Proxy detection</h2>
   <p>A proxy forwards requests on someone else's behalf. Open HTTP and SOCKS proxies are often abused for spam and fraud. This tool flags addresses that detection sources have seen operating as proxies, and shows the proxy type when it is known.</p>
@@ -129,7 +143,7 @@
   <p>We do not save the IP addresses you check or your own IP address in any database. To answer a lookup, the address is sent to proxycheck.io and ipapi.is, and the result is kept in temporary memory for up to 15 minutes. Lookups are rate limited to prevent abuse.</p>
 
   <h2>Frequently asked questions</h2>
-  <div class="faq" style="margin:0"><details><summary>Is my IP address using a VPN?</summary><p>Open this page and the tool checks your public IP automatically. A green result means no VPN, proxy or Tor was detected; red means one was detected; yellow means the result is inconclusive, for example when detection services are unavailable or disagree.</p></details>
+  <div class="faq" style="margin:0"><details><summary>Is my IP address using a VPN?</summary><p>Open this page and the tool checks your public IP automatically. A green result means no VPN, proxy or Tor was detected; red means one was detected; if every detection service is temporarily unavailable, the tool asks you to try again instead of guessing.</p></details>
 <details><summary>How do I check if an IP address is a VPN?</summary><p>Paste any public IPv4 or IPv6 address into the IP checker and press Check IP Address. The address is checked against proxycheck.io VPN and proxy data and the Tor Project exit node list, and the actual results are shown.</p></details>
 <details><summary>Why does the location show a different city from where I am?</summary><p>IP location is approximate. It usually shows where your internet provider registers or routes the address, which can be a nearby city or the provider's regional hub.</p></details>
 <details><summary>What is the difference between a public and a private IP address?</summary><p>A public IP address identifies your connection on the internet. Private addresses such as 192.168.x.x or 10.x.x.x are only used inside your home or office network and cannot be looked up online.</p></details>
@@ -209,7 +223,8 @@
 })();
 </script>
 <script src="assets/js/auth-config.js?v=2"></script>
-<script type="module" src="assets/js/ip-checker.js?v=2"></script>
+<script src="assets/js/maps-config.js?v=1"></script>
+<script type="module" src="assets/js/ip-checker.js?v=7"></script>
 <script src="assets/js/auth-nav.js"></script>
 </body>
 </html>

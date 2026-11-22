@@ -123,3 +123,72 @@ After editing `assets/js/ipcheck-core.js` or `supabase/functions/ip-check/server
 - Real browser timeouts against the deployed function.
 
 The country flag is missing in fallback mode, because keyless ipapi.is returns no country code.
+
+---
+
+# Location map (Google Maps)
+
+The IP checker shows the approximate location of every checked IP on a **Google satellite map with a 📍 marker**,
+directly below the detection results on the same page. It updates without a reload for every manual lookup.
+
+**Page order:**
+1. IP address and VPN status
+2. ISP and network
+3. Location panel
+4. Map
+5. Technical details
+
+Earlier lookups move to "Recent checks".
+
+## How the map works
+
+| Situation | Map shown |
+|---|---|
+| **Google Maps API key set** in `assets/js/maps-config.js` | Official **Google Maps JavaScript API**: satellite (hybrid) by default, Map/Satellite switch, zoom, fullscreen, drag, red 📍 marker, info popup on marker click. One map is created and the marker moves for each lookup. |
+| **No key, or Google rejects the key** | Google's keyless **"Share > Embed a map"** satellite map at the same coordinates, with its red pin, zoom and drag, plus a notice explaining that the interactive map is not configured (or why Google rejected the key). Never a fake or placeholder map. |
+| **API returned no coordinates** | No map; the message "the IP intelligence services returned no coordinates for this address". |
+
+### Where the coordinates come from (never hardcoded)
+- **Function deployed:** proxycheck.io `latitude`/`longitude`/`postcode`, with ipapi.is as the second opinion.
+- **Browser fallback:** ipapi.is `lat`/`lon`. Its free tier allows 30 lookups per visitor IP per day. When that runs out, ipinfo.io `loc`/`postal`/`timezone` is used instead (keyless, browser-callable).
+- Coordinates outside ±90/±180 and the 0,0 placeholder are rejected.
+
+### Accuracy (honest, not invented)
+- Marked as **"IP-derived, approximate (city / region / country level)"**, depending on what the provider returned. Zoom is 11 for city, 8 for region, 5 for country.
+- **Accuracy** compares two independent sources:
+  - within 25 km = Good
+  - within 150 km = Moderate
+  - more = Low, showing both cities (e.g. Monterey vs Vallejo, 169 km)
+- The panel states that this is the network's approximate location, **not a street address**. No house-level coordinates are ever shown or claimed.
+
+## Google Maps setup (to enable the full interactive map)
+
+1. Go to <https://console.cloud.google.com/> and create a project (e.g. "SocialTush").
+2. **Billing** → link a billing account. Google requires this for Maps. Maps Platform includes a monthly free usage allowance; check Google's current pricing page.
+3. **APIs & Services → Library** → enable **Maps JavaScript API** only.
+4. **APIs & Services → Credentials → Create credentials → API key.**
+5. Edit the key:
+   - **Application restrictions → Websites:** `https://socialtush.com/*` and `https://www.socialtush.com/*`
+   - **API restrictions → Restrict key →** Maps JavaScript API
+6. Put the key in `assets/js/maps-config.js` → `googleMapsApiKey: '...'`, or send it to me to add. A website-restricted browser key is designed to be public.
+
+Cost control: the Maps script loads only after an IP has coordinates, once per page view. Manual lookups move the marker on the same map, so they don't count as extra map loads.
+
+## Map tests performed (22 Nov 2026)
+
+| Test | Result |
+|---|---|
+| Coordinates = API values (33/33) | proxycheck.io / ipapi.is / ipinfo.io latitude, longitude and postal code passed through exactly, for Kenya (×2), USA, Albania, Sweden, Canada/USA IPv6 and 8.8.8.8 ✅ |
+| Rejects bad coordinates | 0,0, out-of-range and missing → no marker, clear message ✅ |
+| Accuracy indicator | Safaricom 8–10 km "Good"; Comcast 169 km "Low"; Google IPv6 4,079 km "Low" ✅ |
+| Automatic detection → map | Visitor IP shown on a Google satellite map with the red pin at the panel's exact coordinates ✅ |
+| Manual lookups (no reload) | Albania → Sweden → USA (IPv6): pin moved to the panel's coordinates each time; previous results moved to "Recent checks" ✅ |
+| Invalid input | `not-an-ip` → error, map unchanged ✅ |
+| **Invalid Google key** | Real Google Maps script loaded → Google rejected the key → the page switched to the embedded map and showed "Google rejected the Maps API key…" ✅ |
+| **Missing key** | Embedded satellite map + "Interactive map not configured" notice ✅ |
+| ipapi.is daily limit reached (real 429) | Location fetched from ipinfo.io instead, with correct time zone (Africa/Nairobi) ✅ |
+| Satellite imagery | Satellite tiles confirmed (embed parameter `!5e1`; screenshots of Nairobi/Ruiru) ✅ |
+| Layouts | Desktop: panel beside map. Phone (375 px): map first, then panel, no horizontal scroll ✅ |
+| Verdict logic re-run after changes | 21/21 ✅ |
+
+**Not yet tested:** the **full Google Maps JavaScript API with a valid key**: Map/Satellite switch, marker popup and smooth marker moves. That needs your Google Cloud key. The code path was exercised up to Google's key check (invalid-key test).

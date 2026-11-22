@@ -118,6 +118,10 @@ export function parseProxycheck(json, ip) {
     countryCode: r.isocode || null,
     region: r.region || null,
     city: r.city || null,
+    postal: r.postcode || null,
+    timezone: r.timezone || null,
+    lat: coord(r.latitude, 90),
+    lon: coord(r.longitude, 180),
     operator: r.operator && r.operator.name ? r.operator.name : null,
     warning: json.status === 'warning' ? json.message || null : null,
   };
@@ -135,6 +139,8 @@ export function parseIpapi(json) {
   const asnText = json.asn && typeof json.asn === 'object' ? ('AS' + json.asn.asn + ' ' + (json.asn.org || '')).trim() : json.asn;
   return {
     ok: true,
+    ip: json.ip,
+    source: 'ipapi.is',
     bogon: !!json.is_bogon,
     flags,
     isp: company || null,
@@ -143,6 +149,30 @@ export function parseIpapi(json) {
     countryCode: loc.country_code || null,
     region: loc.state || loc.region || null,
     city: loc.city || null,
+    postal: loc.zip || loc.postal || null,
+    timezone: loc.timezone || json.timezone || null,
+    lat: coord(loc.latitude != null ? loc.latitude : json.lat, 90),
+    lon: coord(loc.longitude != null ? loc.longitude : json.lon, 180),
+  };
+}
+
+/** Country name from a 2-letter code (e.g. KE -> Kenya), or the code itself if names are unavailable. */
+export function countryName(cc) {
+  if (!cc || !/^[A-Za-z]{2}$/.test(cc)) return null;
+  try { return new Intl.DisplayNames(['en'], { type: 'region' }).of(cc.toUpperCase()) || cc.toUpperCase(); } catch { return cc.toUpperCase(); }
+}
+
+/** ipinfo.io keyless response (location + network only; no VPN flags). Same shape as parseIpapi(). */
+export function parseIpinfo(json) {
+  if (!json || typeof json !== 'object' || !json.ip || json.bogon || json.error) return { ok: false, error: (json && json.error && (json.error.message || json.error)) || 'No response' };
+  const [la, lo] = String(json.loc || '').split(',');
+  const m = String(json.org || '').match(/^(AS\d+)\s+(.*)$/);
+  return {
+    ok: true, ip: json.ip, source: 'ipinfo.io', bogon: false, flags: null,
+    isp: m ? m[2] : json.org || null, asn: m ? m[1] + ' ' + m[2] : null,
+    country: countryName(json.country), countryCode: json.country ? String(json.country).toUpperCase() : null,
+    region: json.region || null, city: json.city || null, postal: json.postal || null, timezone: json.timezone || null,
+    lat: coord(la, 90), lon: coord(lo, 180),
   };
 }
 
@@ -224,6 +254,44 @@ export function combine(pc, ia, torListed, extra = {}) {
   return out('clean', 'green', 'NO VPN DETECTED');
 }
 
+/** A latitude/longitude from a provider, or null if missing, out of range or the 0,0 "null island" placeholder. */
+function coord(v, max) {
+  const n = typeof v === 'string' ? parseFloat(v) : v;
+  return typeof n === 'number' && isFinite(n) && Math.abs(n) <= max ? n : null;
+}
+
+/** Great-circle distance in km. */
+export function distanceKm(lat1, lon1, lat2, lon2) {
+  const r = (d) => (d * Math.PI) / 180, R = 6371;
+  const h = Math.sin(r(lat2 - lat1) / 2) ** 2 + Math.cos(r(lat1)) * Math.cos(r(lat2)) * Math.sin(r(lon2 - lon1) / 2) ** 2;
+  return 2 * R * Math.asin(Math.min(1, Math.sqrt(h)));
+}
+
+/**
+ * Where the map marker goes: the provider's own coordinates (proxycheck.io first, ipapi.is second).
+ * Never invents coordinates. precision describes what the data supports (IP geolocation is never a street address).
+ */
+export function geo(pc, ia) {
+  const a = pc && pc.ok ? pc : {}, b = ia && ia.ok ? ia : {};
+  const valid = (p) => coord(p.lat, 90) !== null && coord(p.lon, 180) !== null && !(p.lat === 0 && p.lon === 0);
+  const main = valid(a) ? { p: a, source: 'proxycheck.io' } : valid(b) ? { p: b, source: b.source || 'ipapi.is' } : null;
+  if (!main) return null;
+  const other = main.source === 'proxycheck.io' && valid(b) ? { p: b, source: b.source || 'ipapi.is' } : null;
+  const precision = main.p.city ? 'city' : main.p.region ? 'region' : 'country';
+  const out = {
+    lat: main.p.lat, lon: main.p.lon, source: main.source, precision,
+    zoom: precision === 'city' ? 11 : precision === 'region' ? 8 : 5,
+    city: main.p.city || null, region: main.p.region || null, country: main.p.country || b.country || null,
+    postal: main.p.postal || null, timezone: main.p.timezone || b.timezone || null,
+  };
+  if (other) {
+    const km = distanceKm(main.p.lat, main.p.lon, other.p.lat, other.p.lon);
+    out.second = { lat: other.p.lat, lon: other.p.lon, source: other.source, city: other.p.city || null, km: Math.round(km) };
+    out.agreement = km <= 25 ? 'high' : km <= 150 ? 'medium' : 'low';
+  }
+  return out;
+}
+
 /** Merge location/ISP details, preferring proxycheck.io and filling gaps from ipapi.is. */
 export function details(pc, ia) {
   const a = pc && pc.ok ? pc : {}, b = ia && ia.ok ? ia : {};
@@ -231,8 +299,9 @@ export function details(pc, ia) {
   return {
     isp: pick('isp'), organisation: a.organisation || null, asn: pick('asn'),
     country: pick('country'), countryCode: (pick('countryCode') || '').toUpperCase() || null,
-    region: pick('region'), city: pick('city'),
+    region: pick('region'), city: pick('city'), postal: pick('postal'), timezone: pick('timezone'),
     connectionType: a.connectionType || (a.type && a.anyProxy ? a.type : null),
     operator: a.operator || null,
+    geo: geo(pc, ia),
   };
 }

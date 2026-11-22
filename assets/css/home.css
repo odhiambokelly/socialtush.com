@@ -348,3 +348,30 @@ section { padding: 88px 0; }
   .ipc-card { padding: 1.1rem; }
   .ipc-form .btn { width: 100%; }
 }
+
+/* ===== IP checker: location + map ===== */
+.ipc-h { font-size: .82rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 1.2rem 0 .6rem; }
+.ipc-location { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.4fr); gap: 1.25rem; margin-top: 1.25rem; align-items: stretch; }
+.ipc-location[hidden] { display: none; }
+.ipc-loc-panel { background: #fff; border: 1px solid var(--line); border-radius: 18px; padding: 1.2rem 1.3rem; box-shadow: var(--shadow); }
+.ipc-loc-panel .ipc-h { margin-top: 0; }
+.ipc-loc-panel .ipc-grid { grid-template-columns: 1fr 1fr; }
+.ipc-loc-note { font-size: .82rem; color: var(--muted); margin: .9rem 0 0; line-height: 1.5; }
+.ipc-map-col { display: flex; flex-direction: column; gap: .5rem; min-width: 0; }
+.ipc-map-canvas { position: relative; flex: 1; min-height: 440px; border-radius: 18px; overflow: hidden; border: 1px solid var(--line); background: #dfe7e4; box-shadow: var(--shadow); }
+.ipc-map-canvas[hidden] { display: none; }
+.ipc-map-canvas iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.ipc-map-empty { margin: 0; padding: 1rem 1.2rem; border-radius: 14px; background: var(--bg-soft); border: 1px dashed var(--line); color: var(--muted); }
+.ipc-map-notice { margin: 0; font-size: .8rem; color: #6b5200; background: #fffaea; border: 1px solid #f0dc95; border-radius: 10px; padding: .5rem .75rem; }
+.ipc-map-notice code { font-size: .78rem; }
+.ipc-tech { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: .8rem 1.1rem; margin-top: 1.25rem; }
+.ipc-tech .ipc-grid { margin-top: .7rem; }
+@media (max-width: 900px) {
+  .ipc-location { grid-template-columns: 1fr; }
+  .ipc-map-col { order: -1; }
+  .ipc-map-canvas { min-height: 340px; }
+}
+@media (max-width: 600px) {
+  .ipc-loc-panel .ipc-grid { grid-template-columns: 1fr 1fr; }
+  .ipc-map-canvas { min-height: 300px; }
+}
