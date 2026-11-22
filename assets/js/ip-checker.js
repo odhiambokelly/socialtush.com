@@ -2,7 +2,7 @@
  * If that service is unreachable, it falls back to ipapi.is (browser-safe, location only) and
  * shows the VPN status as INCONCLUSIVE, never as "no VPN". */
 import { validatePublicIp, normalizeIp, ipVersion, parseIpapi, parseBlackbox, parseOnionoo, parseIpinfo, combine, geo } from './ipcheck-core.js?v=5';
-import { initMap, showOnMap } from './ip-map.js?v=2';
+import { initMap, showOnMap } from './ip-map.js?v=3';
 
 const cfg = window.SOCIALTUSH_AUTH || {};
 const ENDPOINT = (cfg.supabaseUrl || '').replace(/\/$/, '') + '/functions/v1/ip-check';

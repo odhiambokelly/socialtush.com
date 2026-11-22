@@ -15,10 +15,14 @@ let last = null;
 
 function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
 
+// Configuration messages are for the site owner only: they go to the browser console, and are shown
+// on the page only when it is opened with ?mapdebug (e.g. https://socialtush.com/ip-checker?mapdebug).
+const SHOW_NOTICES = /[?&]mapdebug\b/.test(location.search);
 function setNotice(html) {
+  if (html) console.info('[SocialTush map] ' + html.replace(/<[^>]+>/g, ''));
   if (!els.notice) return;
-  els.notice.innerHTML = html || '';
-  els.notice.hidden = !html;
+  els.notice.innerHTML = SHOW_NOTICES ? html || '' : '';
+  els.notice.hidden = !(SHOW_NOTICES && html);
 }
 
 /** Load the Google Maps JavaScript API once. Resolves with google.maps or rejects with a reason. */
