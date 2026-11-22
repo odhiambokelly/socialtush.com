@@ -42,3 +42,22 @@
     if (a) { e.stopImmediatePropagation(); }
   }, true);
 })();
+
+/* "Free tools" dropdown in the header: tap/click to toggle, Escape or outside click to close. */
+(function () {
+  function close(except) {
+    document.querySelectorAll('.has-sub.open').forEach(function (li) {
+      if (li !== except) { li.classList.remove('open'); var b = li.querySelector('.sub-toggle'); if (b) b.setAttribute('aria-expanded', 'false'); }
+    });
+  }
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('.sub-toggle');
+    if (b) {
+      var li = b.parentNode, open = !li.classList.contains('open');
+      close(li); li.classList.toggle('open', open); b.setAttribute('aria-expanded', String(open));
+      return;
+    }
+    if (!(e.target.closest && e.target.closest('.has-sub'))) close(null);
+  });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(null); });
+})();

@@ -28,7 +28,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/home.css?v=2">
+<link rel="stylesheet" href="assets/css/home.css?v=4">
 <script>document.documentElement.classList.add('js');</script>
 </head>
 <body>
@@ -43,8 +43,12 @@
       <li><a href="about-us.html">About</a></li>
       <li><a href="team.html">Team</a></li>
       <li><a href="blog.html">Blog</a></li>
-      <li><a href="password-generator.html">Free tools</a></li>
-      <li><a href="ip-checker.html">IP Checker</a></li>
+      <li class="has-sub"><button type="button" class="sub-toggle" aria-expanded="false" aria-controls="tools-sub">Free tools</button>
+        <ul class="sub" id="tools-sub">
+          <li><a href="ip-checker.html">IP Checker</a></li>
+          <li><a href="email-checker.html">Email Checker</a></li>
+          <li><a href="password-generator.html">Password Generator</a></li>
+        </ul></li>
       <li><a href="affiliate.html">Affiliate</a></li>
       <li><a href="contact-us.html">Contact</a></li>
     </ul>
@@ -142,6 +146,7 @@
           <li><a href="signup.html">Create an account</a></li>
           <li><a href="password-generator.html">Password generator</a></li>
           <li><a href="ip-checker.html">IP address checker</a></li>
+          <li><a href="email-checker.html">Email checker</a></li>
           <li><a href="refund-policy.html">Refund policy</a></li>
           <li><a href="terms-and-conditions.html">Terms &amp; conditions</a></li>
         </ul>
@@ -172,6 +177,6 @@
   items.forEach(function (el) { io.observe(el); });
 })();
 </script>
-<script src="assets/js/auth-nav.js"></script>
+<script src="assets/js/auth-nav.js?v=2"></script>
 </body>
 </html>
